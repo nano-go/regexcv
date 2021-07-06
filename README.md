@@ -1,5 +1,5 @@
 # Regexcv
-Regexcv is a command line software that is used to generate the [GraphViz Dot](http://graphviz.org/) language code of DFA/NFA from the regular regex.
+Regexcv is a command line software that is used to generate the [GraphViz Dot](http://graphviz.org/) language code of DFA/NFA from regular expressions
 
 # Feature
 
