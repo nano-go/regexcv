@@ -1,0 +1,24 @@
+digraph NFA{
+	rankdir=LR
+
+	s0 [shape=circle]
+	s1 [shape=circle]
+	s2 [shape=circle]
+	s3 [shape=circle]
+	s4 [shape=circle]
+	s5 [shape=circle]
+	s6 [shape=circle]
+	s7 [shape=doublecircle]
+
+	s0 -> s1 [label="<"]
+	s1 -> s2 [label="\\w"]
+	s2 -> s3 [label=">"]
+	s2 -> s2 [label="\\w"]
+	s3 -> s4 [label="<"]
+	s3 -> s5 [label="any char"]
+	s4 -> s6 [label="\\w"]
+	s5 -> s4 [label="<"]
+	s5 -> s5 [label="any char"]
+	s6 -> s7 [label=">"]
+	s6 -> s6 [label="\\w"]
+}
