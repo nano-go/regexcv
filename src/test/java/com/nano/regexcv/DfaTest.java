@@ -5,14 +5,24 @@ import org.junit.Test;
 
 public class DfaTest {
 	
-	private static class DfaMatcher {
+	private static class MPattern {
 		private Dfa dfa;
 		private CharacterClass charClass;
+		
+		private String pattern;
+		
+		private boolean isMinimized;
 
-		public DfaMatcher(Dfa dfa, CharacterClass charClass) {
-			this.dfa = dfa;
-			DfaMinimizer.minizeDfa(dfa);
-			this.charClass = charClass;
+		public MPattern(String pattern) {
+			RegularExpression regex = new RegexParser().parse(pattern);
+			this.charClass = regex.getCharClass();
+			this.dfa = new Nfa2DfaGenerator().generate(regex.generateNfa(), charClass);
+			this.pattern = pattern;
+		}
+		
+		public void minimizePattern() {
+			this.dfa = DfaMinimizer.minimizeDfa(this.dfa);
+			this.isMinimized = true;
 		}
 		
 		public boolean match(String text) {
@@ -30,6 +40,14 @@ public class DfaTest {
 				}
 			}
 			return s.isFinalState();
+		}
+
+		@Override
+		public String toString() {
+			return String.format(
+				"Minimized DFA Enable: %s,  Pattern: <%s>",
+				isMinimized, pattern
+			);
 		}
 	}
 	
@@ -67,6 +85,12 @@ public class DfaTest {
 			{"(a|b)*abb", "[ab]*abb"}, 
 			{"ababaabb", "ababaababb", "abb", "aaaaaaaabb", "bbbbbbbbabb"}, 
 			{"ababaa", "ab", "abbb", "ybb", ""}
+		},
+		
+		{
+			{"(a|b)*abb*"},
+			{"bbbbbbbbabbbbbbbbbbbbbbbbbbbbab", "ababababbbbbb", "aaaab", "ab", "bab"},
+			{"", "a", "b", "ba", "bba", "bbbba"}
 		},
 		
 		{
@@ -179,22 +203,27 @@ public class DfaTest {
 	}
 
 	private void matchTest(String pattern, String[] matched, String[] unmatched) {
-		RegularExpression regex = new RegexParser().parse(pattern);
-		CharacterClass charClass = regex.getCharClass();
-		Dfa dfa = new Nfa2DfaGenerator().generate(regex.generateNfa(), charClass);
-		DfaMatcher matcher = new DfaMatcher(dfa, charClass);
+		MPattern mp = new MPattern(pattern);
+		matches(mp, matched, unmatched);
 		
+		// Minimized DFA test.
+		mp.minimizePattern();
+		// Match again
+		matches(mp, matched, unmatched);
+	}
+	
+	private void matches(MPattern pattern, String[] matched, String[] unmatched) {
 		for (String text : matched) {
 			Assert.assertTrue(
 				String.format("Expect the text '%s' is matched by the pattern '%s'.", text, pattern),
-				matcher.match(text)
+				pattern.match(text)
 			);
 		}
-		
+
 		for (String text : unmatched) {
 			Assert.assertFalse(
 				String.format("Don't expect the text '%s' is matched by the pattern '%s'.", text, pattern),
-				matcher.match(text)
+				pattern.match(text)
 			);
 		}
 	}

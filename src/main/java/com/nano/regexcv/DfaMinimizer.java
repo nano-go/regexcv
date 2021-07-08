@@ -21,13 +21,14 @@ public class DfaMinimizer {
 			}
 		}
 		
-		public Group paritition(Group group, DfaState s) {
-			group.remove(s);
-			Group newGroup = new Group();
-			newGroup.add(s);
-			groupMap.put(s, newGroup);
-			groupList.add(newGroup);
-			return newGroup;
+		public void move(Group src, Group dest, DfaState s) {
+			src.remove(s);
+			dest.add(s);
+			groupMap.put(s, dest);
+		}
+		
+		public void addGroup(Group newGroup) {
+			this.groupList.add(newGroup);
 		}
 		
 		public Group get(DfaState dstate) {
@@ -43,6 +44,11 @@ public class DfaMinimizer {
 		
 		public int size() { 
 			return groupList.size();
+		}
+		
+		public boolean equals(DfaState s, DfaState t) {
+			if (s == t) return true;
+			return groupMap.get(s) == groupMap.get(t);
 		}
 	}
     
@@ -69,11 +75,11 @@ public class DfaMinimizer {
 		}
 	}
     
-    public static void minizeDfa(Dfa dfa) {
+    public static Dfa minimizeDfa(Dfa dfa) {
 		DfaState[] table = dfa.getAllStates();
 		GroupList groupList = initGroups(table);
 		while (partition(dfa, groupList));
-		dfa.start = rebuild(dfa, table, groupList);
+		return rebuild(dfa, table, groupList);
 	}
 	
 	private static boolean partition(Dfa dfa, GroupList groupList) {
@@ -97,17 +103,19 @@ public class DfaMinimizer {
 	
 	private static boolean partition(GroupList groupList, Group group, DfaState[] dstates, int in) {
 		int size = dstates.length;
-		for (int x = 0; x < size; x ++) {
-			for (int y = x+1; y < size; y ++) {
-				DfaState t = dstates[x];
-				DfaState s = dstates[y];
-				if (groupList.get(t.getState(in)) != groupList.get(s.getState(in))) {
-					groupList.paritition(group, t);
-					return true;
+		DfaState firstDstate = dstates[0];
+		Group newGroup = null;
+		for (int i = 1; i < size; i ++) {
+			DfaState s = dstates[i];
+			if (!groupList.equals(firstDstate.getState(in), s.getState(in))) {
+				if (newGroup == null) {
+					newGroup = new Group();
+					groupList.addGroup(newGroup);
 				}
+				groupList.move(group, newGroup, s);
 			}
 		}
-		return false;
+		return newGroup != null;
 	}
 	
 	private static GroupList initGroups(DfaState[] table) {
@@ -123,8 +131,7 @@ public class DfaMinimizer {
 		return new GroupList(nonFinalGroup, finalGroup);
 	}
 	
-	private static DfaState rebuild(Dfa dfa, DfaState[] table, GroupList groupList) {
-		final int CHAR_SET_COUNT = dfa.getStart().getAllTransitions().length;
+	private static Dfa rebuild(Dfa dfa, DfaState[] table, GroupList groupList) {
 		HashMap<Group, DfaState> groupMap = new HashMap<>(groupList.size());
 		
 		for (DfaState dstate : table) {
@@ -134,17 +141,12 @@ public class DfaMinimizer {
 			for (int i = 0; i < ts.length; i ++) {
 				if (ts[i] == null) continue;
 				Group group = groupList.get(ts[i]);
-				DfaState toState = groupMap.get(group);
-				if (toState == null) {
-					toState = new DfaState(CHAR_SET_COUNT, ts[i].isFinalState());
-					groupMap.put(group, toState);
-				} else if (ts[i].isFinalState()) {
-					toState.isFinal = true;
-				}
+				DfaState toState = getStateFromMap(groupMap, group, ts[i]);
 				fromState.addTransition(i+1, toState);
 			}
 		}
-		return groupMap.get(groupList.get(dfa.getStart()));
+		
+		return new Dfa(groupMap.get(groupList.get(dfa.getStart())));
 	}
 
 	private static DfaState getStateFromMap(HashMap<Group, DfaState> groupMap, Group group, DfaState dstate) {

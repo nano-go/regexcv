@@ -24,14 +24,15 @@ public class Dfa {
 		ArrayList<DfaState> list = new ArrayList<>();
 		HashSet<DfaState> marker = new HashSet<>();
 		list.add(this.start);
+		marker.add(this.start);
 		int i = 0;
 		while (i < list.size()) {
 			DfaState dstate = list.get(i);
-			marker.add(dstate);
 			for (DfaState to : dstate.getAllTransitions()) {
 				if (to == null) continue;
 				if (!marker.contains(to)) {
 					list.add(to);
+					marker.add(to);
 				}
 			}
 			i ++;

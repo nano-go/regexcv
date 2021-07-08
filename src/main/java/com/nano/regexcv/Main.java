@@ -117,7 +117,9 @@ public class Main {
 		RegularExpression r = parseRegex(regex);
 		Nfa nfa = r.generateNfa();
 		Dfa dfa = new Nfa2DfaGenerator().generate(nfa, r.getCharClass());
-		if (minimized) DfaMinimizer.minizeDfa(dfa);
+		if (minimized) {
+			dfa = DfaMinimizer.minimizeDfa(dfa);
+		}
 		return gen.generate(dfa, r.getCharClass());
 	}
 	
