@@ -4,7 +4,7 @@ plugins {
 		id 'jacoco'
 }
 
-version='1.0.0'
+version='v1.0.1'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
