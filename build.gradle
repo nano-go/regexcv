@@ -1,11 +1,12 @@
 plugins {
     id 'java'
-    id 'application'
+		id 'application'
 		id 'jacoco'
 }
 
 version='1.0.0'
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 application {
     mainClassName = 'com.nano.regexcv.Main'
@@ -14,7 +15,7 @@ application {
 jar {
     manifest {
         attributes 'Main-Class': application.mainClassName, 
-				           'Implementation-Version': version,
+									 'Implementation-Version': version,
 									 'Implementation-Title': 'regexcv'
     }
     from {
