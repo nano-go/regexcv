@@ -6,6 +6,10 @@ build
 
 libs
 
+# Ignore temporary test fies.
+dfa*.png
+dfa*.dot
+
 *.jar
 *.sh
 *.swp
