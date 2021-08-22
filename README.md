@@ -1,11 +1,11 @@
 # Regexcv
-Regexcv is a command line tool that is used to generate the DFA/NFA digraph denoted by the [Graphviz Dot Language](http://graphviz.org/) from the regular expression.
+Regexcv is a command line tool that is used to generate a DFA/NFA digraph denoted by the [Graphviz Dot Language](http://graphviz.org/) from a regular expression.
 
 # Feature
 
-1. Generate the NFA/DFA digraph.
-2. Minimize the generated DFA.
-3. Remove the `ε-closure` of the NFA.
+1. Generate NFA/DFA digraph.
+2. Minimize generated DFA.
+3. Remove `ε-closure` of NFA.
 
 # Getting Started
 Regexcv is wrote in Java. If you want to run this tool on your computer, the JRE(1.8 or more) is required.
