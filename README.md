@@ -3,12 +3,11 @@ Regexcv is a command line tool that is used to generate a DFA/NFA digraph denote
 
 # Feature
 
-1. Generate NFA/DFA digraph.
-2. Minimize generated DFA.
-3. Remove `ε-closure` of NFA.
+1. Minimized DFA.
+2. NFA with/without `ε-closure`.
 
 # Getting Started
-Regexcv is wrote in Java. If you want to run this tool on your computer, the JRE(1.8 or more) is required.
+Regexcv is wrote in Java, so JRE(1.8 or more) is required.
 
 Download jar:
 ``` shell
