@@ -1,47 +1,69 @@
 plugins {
     id 'java'
-		id 'application'
-		id 'jacoco'
+    id 'application'
+    id 'jacoco-report-aggregation'
+    id "com.diffplug.spotless" version "6.12.0"
 }
 
-version='v1.0.1'
+version = 'v1.0.1'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs/', include: ['*.jar'])
+    implementation 'commons-cli:commons-cli:1.4'
+    testImplementation 'junit:junit:4.13'
+}
 
 application {
     mainClassName = 'com.nano.regexcv.Main'
 }
 
-jar {
-    manifest {
-        attributes 'Main-Class': application.mainClassName, 
-									 'Implementation-Version': version,
-									 'Implementation-Title': 'regexcv'
-    }
-    from {
-        configurations.compile.collect { it.isDirectory() ? it : zipTree(it)}
-    }
+compileJava {
+    options.compilerArgs << "-Xlint:deprecation"
 }
 
-compileJava {
-	options.compilerArgs << "-Xlint:deprecation"
+
+jar {
+    manifest {
+        attributes 'Main-Class': application.mainClassName,
+                'Implementation-Version': version,
+                'Implementation-Title': 'regexcv'
+    }
+
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
 }
 
 jacocoTestReport {
-	reports {
-		html.enabled true
-		xml.enabled false
-	}
+    reports {
+        html.enabled true
+        xml.enabled false
+    }
 }
 
-repositories {
-    jcenter()
+tasks.named('check') {
+    dependsOn tasks.named('testCodeCoverageReport', JacocoReport)
 }
 
-check.dependsOn jacocoTestReport
+spotless {
+    format 'misc', {
+        target '*.gradle', '*.md', '.gitignore'
+                indentWithSpaces(4)
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 
-dependencies {
-    implementation fileTree(dir: 'libs/', include: ['*.jar'])
-		compile 'commons-cli:commons-cli:1.4'
-    testImplementation 'junit:junit:4.13'
+    java {
+        licenseHeaderFile rootProject.file('license-header.java')
+        importOrder('java', 'javax', 'com', 'org')
+        googleJavaFormat()
+        formatAnnotations()
+    }
 }
