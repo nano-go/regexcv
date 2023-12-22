@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv.gen;
+package com.nano.regexcv.dfa;
 
-import com.nano.regexcv.CharacterClass;
-import com.nano.regexcv.Dfa;
-import com.nano.regexcv.DfaState;
-import com.nano.regexcv.Nfa;
-import com.nano.regexcv.NfaState;
+import com.nano.regexcv.Pass;
+import com.nano.regexcv.nfa.Nfa;
+import com.nano.regexcv.nfa.NfaState;
+import com.nano.regexcv.util.CharacterClass;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
 /** This converts a NFA into a DFA. */
-public class Nfa2DfaGenerator implements NfaGenerator<Dfa> {
+public class SubsetConstructionPass implements Pass<Nfa, Dfa> {
 
   private static class DState {
     private HashSet<NfaState> nfaSubset;
@@ -54,10 +53,11 @@ public class Nfa2DfaGenerator implements NfaGenerator<Dfa> {
   }
 
   @Override
-  public Dfa generate(Nfa nfa, CharacterClass charClass) {
+  public Dfa accept(Nfa nfa) {
+    CharacterClass table = nfa.getCharTable();
     LinkedList<DState> stack = new LinkedList<>();
     HashMap<DState, DfaState> dstates = new HashMap<>();
-    final int charSetCount = charClass.getTableSize();
+    final int charSetCount = table.getTableSize();
 
     DState start = new DState(closure(nfa.getStart()));
     dstates.put(start, new DfaState(charSetCount, start.isFinalState(nfa)));
@@ -82,7 +82,7 @@ public class Nfa2DfaGenerator implements NfaGenerator<Dfa> {
         fromDfaState.addTransition(in, toDfaState);
       }
     }
-    return new Dfa(dstates.get(start));
+    return new Dfa(dstates.get(start), table);
   }
 
   private HashSet<NfaState> closure(NfaState s) {

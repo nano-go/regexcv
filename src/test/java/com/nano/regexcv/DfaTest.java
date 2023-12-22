@@ -15,7 +15,13 @@
  */
 package com.nano.regexcv;
 
-import com.nano.regexcv.gen.Nfa2DfaGenerator;
+import com.nano.regexcv.dfa.Dfa;
+import com.nano.regexcv.dfa.DfaMinimizer;
+import com.nano.regexcv.dfa.DfaState;
+import com.nano.regexcv.dfa.SubsetConstructionPass;
+import com.nano.regexcv.nfa.RExpTree2NfaPass;
+import com.nano.regexcv.syntax.RegexParser;
+import com.nano.regexcv.util.CharacterClass;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -30,14 +36,17 @@ public class DfaTest {
     private boolean isMinimized;
 
     public MPattern(String pattern) {
-      RegularExpression regex = new RegexParser().parse(pattern);
-      this.charClass = regex.getCharClass();
-      this.dfa = new Nfa2DfaGenerator().generate(regex.generateNfa(), charClass);
+      this.dfa =
+          new RegexParser()
+              .next(new RExpTree2NfaPass())
+              .next(new SubsetConstructionPass())
+              .accept(pattern);
+      this.charClass = dfa.getCharTable();
       this.pattern = pattern;
     }
 
     public void minimizePattern() {
-      this.dfa = DfaMinimizer.minimizeDfa(this.dfa);
+      this.dfa = new DfaMinimizer().accept(this.dfa);
       this.isMinimized = true;
     }
 
@@ -66,7 +75,7 @@ public class DfaTest {
 
   public static final String[][][] TEST_CASES = {
     {
-      // Patterns        Macthed strings   Unmacthed stringss.
+      // Patterns Macthed strings Unmacthed stringss.
       {"", "[]", "()"}, {""}, {"abc", "a", "b"}
     },
     {{"ab"}, {"ab"}, {"a", "b", "ac", "acb"}},

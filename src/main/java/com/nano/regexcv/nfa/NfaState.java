@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv;
+package com.nano.regexcv.nfa;
 
+import com.nano.regexcv.util.CharacterClass;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;

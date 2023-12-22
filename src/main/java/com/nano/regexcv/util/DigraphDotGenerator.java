@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv.gen;
+package com.nano.regexcv.util;
 
 import static com.nano.regexcv.util.Digraph.*;
 
-import com.nano.regexcv.util.Digraph;
+import com.nano.regexcv.Pass;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
 
-public class DigraphDotGenerator implements DigraphGenerator<String> {
+public class DigraphDotGenerator implements Pass<Digraph, String> {
 
   private static String generateName(int serialNumber) {
     return String.format("s%d", serialNumber);
@@ -32,7 +32,7 @@ public class DigraphDotGenerator implements DigraphGenerator<String> {
   private GraphvizDotBuilder code;
 
   @Override
-  public String generate(Digraph digraph) {
+  public String accept(Digraph digraph) {
     code = new GraphvizDotBuilder("digraph", digraph.getName());
     generateCode(digraph.getStart());
     return code.build();

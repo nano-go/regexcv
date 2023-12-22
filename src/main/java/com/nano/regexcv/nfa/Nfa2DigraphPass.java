@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv.gen;
+package com.nano.regexcv.nfa;
 
-import com.nano.regexcv.CharacterClass;
-import com.nano.regexcv.Nfa;
-import com.nano.regexcv.NfaState;
+import com.nano.regexcv.Pass;
+import com.nano.regexcv.util.CharacterClass;
 import com.nano.regexcv.util.CharacterRange;
 import com.nano.regexcv.util.Digraph;
 import java.util.HashMap;
@@ -25,14 +24,15 @@ import java.util.HashSet;
 import java.util.LinkedList;
 
 /** This converts a DFA into a digraph. */
-public class Nfa2DigraphGenerator implements NfaGenerator<Digraph> {
+public class Nfa2DigraphPass implements Pass<Nfa, Digraph> {
 
   private static CharacterRange getCharRange(CharacterClass table, int classNumber) {
     return classNumber == 0 ? CharacterRange.EPSILON : table.getCharRange(classNumber);
   }
 
   @Override
-  public Digraph generate(Nfa nfa, CharacterClass charClass) {
+  public Digraph accept(Nfa nfa) {
+    CharacterClass charTable = nfa.getCharTable();
     LinkedList<NfaState> stack = new LinkedList<>();
     HashMap<NfaState, Digraph.Node> nodes = new HashMap<>();
 
@@ -55,7 +55,7 @@ public class Nfa2DigraphGenerator implements NfaGenerator<Digraph> {
             nodes.put(state, toNode);
             stack.push(state);
           }
-          CharacterRange charRange = getCharRange(charClass, classNum);
+          CharacterRange charRange = getCharRange(charTable, classNum);
           fromNode.addEdge(charRange, toNode);
         }
       }

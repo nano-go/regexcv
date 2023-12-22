@@ -13,37 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv;
+package com.nano.regexcv.nfa;
 
+import com.nano.regexcv.Pass;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-public class Nfa {
+public class RemoveEpsilonClosurePass implements Pass<Nfa, Nfa> {
 
-  protected NfaState start, end;
-
-  public Nfa(NfaState start, NfaState end) {
-    this.start = start;
-    this.end = end;
-  }
-
-  public NfaState getStart() {
-    return start;
-  }
-
-  public NfaState getEnd() {
-    return end;
-  }
-
-  public void removeEpsilonClosure() {
+  @Override
+  public Nfa accept(Nfa nfa) {
     LinkedList<NfaState> stack = new LinkedList<NfaState>();
     HashSet<NfaState> marked = new HashSet<>();
-    stack.add(start);
+    stack.add(nfa.start);
     while (!stack.isEmpty()) {
       NfaState node = stack.pop();
       marked.add(node);
-      removeEpsilonClosure(node);
+      removeEpsilonClosure(node, nfa.end);
       Arrays.stream(node.getTransitions())
           .filter(e -> e != null)
           .flatMap(e -> e.stream())
@@ -51,11 +38,12 @@ public class Nfa {
           .forEach(stack::push);
     }
     // The end state may not exist after the ε-closure is removed.
-    this.end = null;
+    nfa.end = null;
+    return nfa;
   }
 
-  /** Remove the set of states which can be reached from the given state with only 'ε'. */
-  private void removeEpsilonClosure(NfaState from) {
+  /** Searches all nfa nodes without epsilon which can be reached from the given 'from' node. */
+  private void removeEpsilonClosure(NfaState from, NfaState end) {
     boolean foundEndNode = false;
     LinkedList<NfaState> stack = new LinkedList<NfaState>(from.getEpsilonTransitions());
     HashSet<NfaState> marked = new HashSet<>();
@@ -80,6 +68,7 @@ public class Nfa {
         }
       }
     }
+
     from.removeEpsilonTransitions();
     if (foundEndNode) from.markFinalState();
   }

@@ -13,10 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv.gen;
+package com.nano.regexcv.nfa;
 
-import com.nano.regexcv.util.Digraph;
+import com.nano.regexcv.util.CharacterClass;
 
-public interface DigraphGenerator<R> {
-  public R generate(Digraph digraph);
+public class Nfa {
+
+  protected CharacterClass table;
+  protected NfaState start, end;
+
+  public Nfa(CharacterClass table) {
+    this.table = table;
+    this.start = new NfaState(table.getTableSize());
+    this.end = new NfaState(table.getTableSize());
+  }
+
+  public CharacterClass getCharTable() {
+    return this.table;
+  }
+
+  public NfaState getStart() {
+    return start;
+  }
+
+  public NfaState getEnd() {
+    return end;
+  }
 }

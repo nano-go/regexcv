@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv;
+package com.nano.regexcv.dfa;
 
+import com.nano.regexcv.Pass;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-public class DfaMinimizer {
+public class DfaMinimizer implements Pass<Dfa, Dfa> {
 
   private static class GroupList {
     private ArrayList<Group> groupList;
@@ -91,7 +92,8 @@ public class DfaMinimizer {
     }
   }
 
-  public static Dfa minimizeDfa(Dfa dfa) {
+  @Override
+  public Dfa accept(Dfa dfa) {
     DfaState[] table = dfa.getAllStates();
     GroupList groupList = initGroups(table);
     while (partition(dfa, groupList))
@@ -163,7 +165,7 @@ public class DfaMinimizer {
       }
     }
 
-    return new Dfa(groupMap.get(groupList.get(dfa.getStart())));
+    return new Dfa(groupMap.get(groupList.get(dfa.getStart())), dfa.getCharTable());
   }
 
   private static DfaState getStateFromMap(

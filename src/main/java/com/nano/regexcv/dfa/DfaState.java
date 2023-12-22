@@ -13,11 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv.gen;
+package com.nano.regexcv.dfa;
 
-import com.nano.regexcv.CharacterClass;
-import com.nano.regexcv.Dfa;
+public class DfaState {
 
-public interface DfaGenerator<R> {
-  public R generate(Dfa nfa, CharacterClass charClass);
+  private DfaState[] transitions;
+  protected boolean isFinal;
+
+  public DfaState(int charSetCount, boolean isFinal) {
+    this.transitions = new DfaState[charSetCount];
+    this.isFinal = isFinal;
+  }
+
+  public void addTransition(int charClass, DfaState state) {
+    transitions[charClass - 1] = state;
+  }
+
+  public DfaState getState(int charClass) {
+    return transitions[charClass - 1];
+  }
+
+  public DfaState[] getAllTransitions() {
+    return transitions;
+  }
+
+  public boolean isFinalState() {
+    return this.isFinal;
+  }
 }

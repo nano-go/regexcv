@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv;
+package com.nano.regexcv.dfa;
 
+import com.nano.regexcv.util.CharacterClass;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -23,8 +24,15 @@ public class Dfa {
   /** Visible for DfaMinimizer. */
   protected DfaState start;
 
-  public Dfa(DfaState start) {
+  protected CharacterClass table;
+
+  public Dfa(DfaState start, CharacterClass table) {
     this.start = start;
+    this.table = table;
+  }
+
+  public CharacterClass getCharTable() {
+    return this.table;
   }
 
   public DfaState getStart() {

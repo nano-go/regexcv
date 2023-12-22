@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv.gen;
+package com.nano.regexcv.dfa;
 
-import com.nano.regexcv.CharacterClass;
-import com.nano.regexcv.Dfa;
-import com.nano.regexcv.DfaState;
+import com.nano.regexcv.Pass;
+import com.nano.regexcv.util.CharacterClass;
 import com.nano.regexcv.util.Digraph;
 import java.util.HashMap;
 import java.util.LinkedList;
 
 /** This converts a DFA into a digraph. */
-public class Dfa2DigraphGenerator implements DfaGenerator<Digraph> {
+public class Dfa2DigraphPass implements Pass<Dfa, Digraph> {
 
   @Override
-  public Digraph generate(Dfa dfa, CharacterClass charClass) {
+  public Digraph accept(Dfa dfa) {
+    CharacterClass charClass = dfa.getCharTable();
     LinkedList<DfaState> stack = new LinkedList<>();
 
     HashMap<DfaState, Digraph.Node> nodes = new HashMap<>();
