@@ -28,14 +28,14 @@ import java.util.Set;
 public class SubsetConstructionPass implements Pass<Nfa, Dfa> {
 
   private static class DState {
-    private HashSet<NfaState> nfaSubset;
+    protected HashSet<NfaState> nfaSubset;
 
     public DState(HashSet<NfaState> nfaSubset) {
       this.nfaSubset = nfaSubset;
     }
 
-    public boolean isFinalState(Nfa nfa) {
-      return this.nfaSubset.contains(nfa.getEnd());
+    public boolean isFinalState() {
+      return this.nfaSubset.stream().anyMatch((s) -> s.isFinalState());
     }
 
     @Override
@@ -60,7 +60,7 @@ public class SubsetConstructionPass implements Pass<Nfa, Dfa> {
     final int charSetCount = table.getTableSize();
 
     DState start = new DState(closure(nfa.getStart()));
-    dstates.put(start, new DfaState(charSetCount, start.isFinalState(nfa)));
+    dstates.put(start, new DfaState(charSetCount, start.isFinalState()));
     stack.push(start);
 
     while (!stack.isEmpty()) {
@@ -75,7 +75,7 @@ public class SubsetConstructionPass implements Pass<Nfa, Dfa> {
         DState newDState = new DState(U);
         DfaState toDfaState = dstates.get(newDState);
         if (toDfaState == null) {
-          toDfaState = new DfaState(charSetCount, newDState.isFinalState(nfa));
+          toDfaState = new DfaState(charSetCount, newDState.isFinalState());
           dstates.put(newDState, toDfaState);
           stack.push(newDState);
         }
@@ -106,11 +106,12 @@ public class SubsetConstructionPass implements Pass<Nfa, Dfa> {
     return set;
   }
 
-  private HashSet<NfaState> move(HashSet<NfaState> T, int a) {
-    LinkedList<NfaState> stack = new LinkedList<NfaState>();
-    HashSet<NfaState> marker = new HashSet<>(T);
+  private HashSet<NfaState> move(HashSet<NfaState> T, int in) {
     HashSet<NfaState> set = new HashSet<>();
+    HashSet<NfaState> marker = new HashSet<>(T);
+    LinkedList<NfaState> stack = new LinkedList<NfaState>();
     T.stream().forEach(stack::push);
+
     while (!stack.isEmpty()) {
       NfaState s = stack.pop();
       Set<NfaState> emptyTransitions = s.getEpsilonTransitions();
@@ -119,11 +120,12 @@ public class SubsetConstructionPass implements Pass<Nfa, Dfa> {
           stack.push(state);
         }
       }
-      for (NfaState state : s.getStateSet(a)) {
+      for (NfaState state : s.getStateSet(in)) {
         marker.add(state);
         set.add(state);
       }
     }
+
     return set;
   }
 }
