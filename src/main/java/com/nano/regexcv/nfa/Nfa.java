@@ -26,10 +26,11 @@ public class Nfa {
     this.table = table;
     this.start = new NfaState(table.getTableSize());
     this.end = new NfaState(table.getTableSize());
+    this.end.markFinalState();
   }
 
   public CharacterClass getCharTable() {
-    return this.table;
+    return table;
   }
 
   public NfaState getStart() {

@@ -107,7 +107,8 @@ public class RExpTree2NfaPass implements RTreeVisitor<Nfa>, Pass<RegularExpressi
     var regexList = node.getRegexList();
     if (!regexList.isEmpty()) {
       for (RegularExpression regex : regexList) {
-        Nfa subnfa = regex.accept(this);
+        var subnfa = regex.accept(this);
+        subnfa.getEnd().unmarkFinalState();
         start.addEmptyTransition(subnfa.getStart());
         subnfa.getEnd().addEmptyTransition(end);
       }
@@ -128,6 +129,7 @@ public class RExpTree2NfaPass implements RTreeVisitor<Nfa>, Pass<RegularExpressi
     var last = start;
     for (RegularExpression regex : node.getRegexList()) {
       Nfa subnfa = regex.accept(this);
+      subnfa.getEnd().unmarkFinalState();
       last.addEmptyTransition(subnfa.getStart());
       last = subnfa.getEnd();
     }

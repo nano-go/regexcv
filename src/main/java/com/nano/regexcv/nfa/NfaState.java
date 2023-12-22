@@ -72,6 +72,11 @@ public class NfaState {
     return this;
   }
 
+  public NfaState unmarkFinalState() {
+    this.isFinal = false;
+    return this;
+  }
+
   public boolean isFinalState() {
     return this.isFinal;
   }
