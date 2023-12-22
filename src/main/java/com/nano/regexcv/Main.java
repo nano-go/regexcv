@@ -15,13 +15,17 @@
  */
 package com.nano.regexcv;
 
-import com.nano.regexcv.gen.Dfa2DigraphGenerator;
-import com.nano.regexcv.gen.DfaGenerator;
-import com.nano.regexcv.gen.DigraphDotGenerator;
-import com.nano.regexcv.gen.Nfa2DfaGenerator;
-import com.nano.regexcv.gen.Nfa2DigraphGenerator;
-import com.nano.regexcv.gen.NfaGenerator;
+import com.nano.regexcv.dfa.Dfa2DigraphPass;
+import com.nano.regexcv.dfa.DfaMinimizer;
+import com.nano.regexcv.dfa.SubsetConstructionPass;
+import com.nano.regexcv.nfa.Nfa;
+import com.nano.regexcv.nfa.Nfa2DigraphPass;
+import com.nano.regexcv.nfa.RExpTree2NfaPass;
+import com.nano.regexcv.nfa.RemoveEpsilonClosurePass;
+import com.nano.regexcv.syntax.ParserException;
+import com.nano.regexcv.syntax.RegexParser;
 import com.nano.regexcv.util.Digraph;
+import com.nano.regexcv.util.DigraphDotGenerator;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -98,51 +102,46 @@ public class Main {
   }
 
   private static void run(CommandLine cl) {
-    String regex = cl.getArgs()[0];
-    Digraph digraph;
-    if (cl.hasOption("D")) {
-      digraph = getDfaDigraph(regex, cl.hasOption("m"));
-    } else {
-      digraph = getNfaDigraph(regex, cl.hasOption("e"));
-    }
+    var regex = cl.getArgs()[0];
+    var pass = combinePasses(cl);
+    var digraph = pass.accept(regex);
+    // TODO: Use 'Pass' to impl the 'reduceEdges' function.
     if (cl.hasOption("r")) {
       digraph.reduceEdges();
     }
-    System.out.println(new DigraphDotGenerator().generate(digraph));
+    System.out.println(new DigraphDotGenerator().accept(digraph));
   }
 
-  private static Digraph getDfaDigraph(String regex, boolean minimized) {
-    return dfaGen(regex, minimized, new Dfa2DigraphGenerator());
-  }
+  private static Pass<String, Digraph> combinePasses(CommandLine cl) {
+    Pass<String, Nfa> pass;
 
-  private static Digraph getNfaDigraph(String regex, boolean removeEmptyEdges) {
-    return nfaGen(regex, removeEmptyEdges, new Nfa2DigraphGenerator());
-  }
-
-  private static <R> R nfaGen(String regex, boolean removeEmptyEdges, NfaGenerator<R> gen) {
-    RegularExpression r = parseRegex(regex);
-    Nfa nfa = r.generateNfa();
-    if (removeEmptyEdges) nfa.removeEpsilonClosure();
-    return gen.generate(nfa, r.getCharClass());
-  }
-
-  private static <R> R dfaGen(String regex, boolean minimized, DfaGenerator<R> gen) {
-    RegularExpression r = parseRegex(regex);
-    Nfa nfa = r.generateNfa();
-    Dfa dfa = new Nfa2DfaGenerator().generate(nfa, r.getCharClass());
-    if (minimized) {
-      dfa = DfaMinimizer.minimizeDfa(dfa);
-    }
-    return gen.generate(dfa, r.getCharClass());
-  }
-
-  private static RegularExpression parseRegex(String regex) {
     try {
-      return new RegexParser().parse(regex);
+      pass = new RegexParser().next(new RExpTree2NfaPass());
     } catch (ParserException e) {
       System.err.println(e.getMessage());
       System.exit(8);
+      return null;
     }
-    return null;
+
+    if (cl.hasOption('D')) {
+      return getDfaPass(pass, cl);
+    } else {
+      return getNfaPass(pass, cl);
+    }
+  }
+
+  private static Pass<String, Digraph> getDfaPass(Pass<String, Nfa> pass, CommandLine cl) {
+    var dfaPass = pass.next(new SubsetConstructionPass());
+    if (cl.hasOption("m")) {
+      dfaPass = dfaPass.next(new DfaMinimizer());
+    }
+    return dfaPass.next(new Dfa2DigraphPass());
+  }
+
+  private static Pass<String, Digraph> getNfaPass(Pass<String, Nfa> pass, CommandLine cl) {
+    if (cl.hasOption("e")) {
+      pass = pass.next(new RemoveEpsilonClosurePass());
+    }
+    return pass.next(new Nfa2DigraphPass());
   }
 }
