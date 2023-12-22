@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv;
+package com.nano.regexcv.util;
 
-import com.nano.regexcv.util.CharacterRange;
-import com.nano.regexcv.util.CharacterRangeSet;
-import com.nano.regexcv.util.CharacterSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,10 +43,9 @@ public class CharacterClass {
   public static final int EPSILON_CHAR_CLASS = 0;
   public static final int INVALID_CHAR_CLASS = -1;
 
-  private CharacterRangeSet charRangeSet;
   private CharacterRange[] charClassTable;
 
-  protected CharacterClass() {}
+  public CharacterClass() {}
 
   public void generateTable(CharacterRangeSet charRangeSet) {
     List<CharacterRange> ranges = charRangeSet.sortedCharRanges();
@@ -75,7 +71,6 @@ public class CharacterClass {
     }
 
     this.charClassTable = table.toArray(new CharacterRange[table.size()]);
-    this.charRangeSet = charRangeSet;
   }
 
   private List<CharacterRange> getTable(List<Character> chars, CharacterRangeSet charRangeSet) {
@@ -105,7 +100,7 @@ public class CharacterClass {
     return table;
   }
 
-  protected int getClassNumber(char ch) {
+  public int getClassNumber(char ch) {
     int l = 0, r = charClassTable.length - 1;
     while (l <= r) {
       int mid = (r + l) >> 1;
@@ -143,7 +138,7 @@ public class CharacterClass {
    * <p>If we want to find the char class numbers corresponding to the char range ['a'-'z'], then
    * the class number range [1, 3] to represent [1(a-h), 2(i-m), 3(o-z)] will be found.
    */
-  protected int[] getClassNumberRange(char from, char to) {
+  public int[] getClassNumberRange(char from, char to) {
     int l = 0, r = charClassTable.length - 1;
     while (l <= r) {
       int mid = l + (r - l) / 2;
@@ -161,7 +156,7 @@ public class CharacterClass {
     throw new Error("The char range ['" + from + "', '" + to + "'] not found.");
   }
 
-  protected CharacterRange[] getCharClassTable() {
+  public CharacterRange[] getCharClassTable() {
     return this.charClassTable;
   }
 

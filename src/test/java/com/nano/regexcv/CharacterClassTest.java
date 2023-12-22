@@ -17,6 +17,7 @@ package com.nano.regexcv;
 
 import static org.junit.Assert.*;
 
+import com.nano.regexcv.util.CharacterClass;
 import com.nano.regexcv.util.CharacterRange;
 import com.nano.regexcv.util.CharacterRangeSet;
 import java.util.ArrayList;
