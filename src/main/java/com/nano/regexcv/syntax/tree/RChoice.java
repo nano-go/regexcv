@@ -13,10 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv;
+package com.nano.regexcv.syntax.tree;
 
-public class ParserException extends RuntimeException {
-  public ParserException(String msg) {
-    super(msg);
+import java.util.Collections;
+import java.util.List;
+
+public class RChoice extends RegularExpression {
+
+  private List<RegularExpression> regexList;
+
+  public RChoice(List<RegularExpression> regexList) {
+    this.regexList = regexList != null ? regexList : Collections.emptyList();
+  }
+
+  @Override
+  public <Out> Out accept(RTreeVisitor<Out> visitor) {
+    return visitor.visit(this);
+  }
+
+  public List<RegularExpression> getRegexList() {
+    return this.regexList;
   }
 }

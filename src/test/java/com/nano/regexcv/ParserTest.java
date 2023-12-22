@@ -17,6 +17,8 @@ package com.nano.regexcv;
 
 import static org.junit.Assert.*;
 
+import com.nano.regexcv.syntax.ParserException;
+import com.nano.regexcv.syntax.RegexParser;
 import org.junit.Test;
 
 public class ParserTest {
@@ -32,7 +34,7 @@ public class ParserTest {
     RegexParser parser = new RegexParser();
     for (String pattern : ERROR_REGEX) {
       try {
-        parser.parse(pattern);
+        parser.accept(pattern);
       } catch (ParserException e) {
         System.out.println(e.getMessage());
         continue;

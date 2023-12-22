@@ -13,8 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv;
+package com.nano.regexcv.syntax;
 
+import com.nano.regexcv.Pass;
+import com.nano.regexcv.syntax.tree.RCharList;
+import com.nano.regexcv.syntax.tree.RCharRange;
+import com.nano.regexcv.syntax.tree.RCharRangeList;
+import com.nano.regexcv.syntax.tree.RChoice;
+import com.nano.regexcv.syntax.tree.RContatenation;
+import com.nano.regexcv.syntax.tree.ROneOrMore;
+import com.nano.regexcv.syntax.tree.ROptional;
+import com.nano.regexcv.syntax.tree.RSingleCharacter;
+import com.nano.regexcv.syntax.tree.RZeroOrMore;
+import com.nano.regexcv.syntax.tree.RegularExpression;
+import com.nano.regexcv.util.CharacterClass;
 import com.nano.regexcv.util.CharacterRange;
 import com.nano.regexcv.util.CharacterRangeSet;
 import java.util.ArrayList;
@@ -22,7 +34,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RegexParser {
+public class RegexParser implements Pass<String, RegularExpression> {
 
   private static final char EOF = (char) -1;
 
@@ -48,7 +60,8 @@ public class RegexParser {
   private CharacterRangeSet charRangeSet;
   private CharacterClass charClass;
 
-  public RegularExpression parse(String regex) throws ParserException {
+  @Override
+  public RegularExpression accept(String regex) {
     this.p = 0;
     this.ch = 0;
     this.chars = regex.toCharArray();

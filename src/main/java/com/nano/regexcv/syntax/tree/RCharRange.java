@@ -13,20 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv;
+package com.nano.regexcv.syntax.tree;
 
-public class ROptional extends RegularExpression {
+public class RCharRange extends RegularExpression {
 
-  private RegularExpression regex;
+  private char from, to;
 
-  public ROptional(RegularExpression regex) {
-    this.regex = regex;
+  public RCharRange(char from, char to) {
+    this.from = from;
+    this.to = to;
   }
 
   @Override
-  public Nfa generateNfa() {
-    Nfa nfa = regex.generateNfa();
-    nfa.start.addEmptyTransition(nfa.end);
-    return nfa;
+  public <Out> Out accept(RTreeVisitor<Out> visitor) {
+    return visitor.visit(this);
+  }
+
+  public char getFromChar() {
+    return from;
+  }
+
+  public char getToChar() {
+    return to;
   }
 }

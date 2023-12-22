@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv;
+package com.nano.regexcv.syntax.tree;
 
 public class ROneOrMore extends RegularExpression {
 
@@ -24,9 +24,11 @@ public class ROneOrMore extends RegularExpression {
   }
 
   @Override
-  public Nfa generateNfa() {
-    Nfa nfa = regex.generateNfa();
-    nfa.end.addEmptyTransition(nfa.start);
-    return nfa;
+  public <Out> Out accept(RTreeVisitor<Out> visitor) {
+    return visitor.visit(this);
+  }
+
+  public RegularExpression getQuiantifiedNode() {
+    return this.regex;
   }
 }

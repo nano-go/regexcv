@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv;
+package com.nano.regexcv.syntax.tree;
 
 import java.util.List;
 
@@ -26,16 +26,11 @@ public class RContatenation extends RegularExpression {
   }
 
   @Override
-  public Nfa generateNfa() {
-    NfaState start = new NfaState(getMaxClassNumber());
-    NfaState end = new NfaState(getMaxClassNumber());
-    NfaState last = start;
-    for (RegularExpression regex : regexList) {
-      Nfa nfa = regex.generateNfa();
-      last.addEmptyTransition(nfa.start);
-      last = nfa.end;
-    }
-    last.addEmptyTransition(end);
-    return new Nfa(start, end);
+  public <Out> Out accept(RTreeVisitor<Out> visitor) {
+    return visitor.visit(this);
+  }
+
+  public List<RegularExpression> getRegexList() {
+    return this.regexList;
   }
 }

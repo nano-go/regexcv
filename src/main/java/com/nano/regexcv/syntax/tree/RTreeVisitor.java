@@ -13,27 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv;
+package com.nano.regexcv.syntax.tree;
 
-public abstract class RegularExpression {
+public interface RTreeVisitor<Out> {
 
-  private CharacterClass characterClass;
+  public Out visit(RSingleCharacter node);
 
-  protected void setCharacterClass(CharacterClass characterClass) {
-    this.characterClass = characterClass;
-  }
+  public Out visit(RCharList node);
 
-  protected CharacterClass getCharClass() {
-    return characterClass;
-  }
+  public Out visit(RCharRange node);
 
-  protected int getCharClassNumber(char ch) {
-    return characterClass.getClassNumber(ch);
-  }
+  public Out visit(RCharRangeList node);
 
-  protected int getMaxClassNumber() {
-    return characterClass.getTableSize();
-  }
+  public Out visit(RChoice node);
 
-  public abstract Nfa generateNfa();
+  public Out visit(RContatenation node);
+
+  public Out visit(ROneOrMore node);
+
+  public Out visit(ROptional node);
+
+  public Out visit(RZeroOrMore node);
 }

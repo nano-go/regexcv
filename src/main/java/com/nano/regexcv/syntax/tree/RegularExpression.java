@@ -13,26 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv;
+package com.nano.regexcv.syntax.tree;
 
-public class RCharList extends RegularExpression {
+import com.nano.regexcv.util.CharacterClass;
 
-  private char[] chs;
+public abstract class RegularExpression {
 
-  public RCharList(char... chs) {
-    this.chs = chs;
+  private CharacterClass characterClass;
+
+  public void setCharacterClass(CharacterClass characterClass) {
+    this.characterClass = characterClass;
   }
 
-  @Override
-  public Nfa generateNfa() {
-    NfaState start = new NfaState(getMaxClassNumber());
-    NfaState end = new NfaState(getMaxClassNumber());
-    for (char ch : chs) {
-      start.addTransition(getCharClassNumber(ch), end);
-    }
-    if (chs.length == 0) {
-      start.addEmptyTransition(end);
-    }
-    return new Nfa(start, end);
+  public CharacterClass getCharClass() {
+    return characterClass;
   }
+
+  public abstract <Out> Out accept(RTreeVisitor<Out> visitor);
 }
