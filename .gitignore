@@ -4,6 +4,9 @@
 # Ignore Gradle build output directory
 build
 
+# Ignore bin directory
+bin
+
 libs
 
 # Ignore temporary test fies.

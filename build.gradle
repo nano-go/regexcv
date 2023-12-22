@@ -1,17 +1,18 @@
 plugins {
     id 'java'
     id 'application'
-    id 'jacoco-report-aggregation'
     id "com.diffplug.spotless" version "6.12.0"
 }
 
 version = 'v1.0.1'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 repositories {
     mavenCentral()
-    jcenter()
 }
 
 dependencies {
@@ -21,17 +22,16 @@ dependencies {
 }
 
 application {
-    mainClassName = 'com.nano.regexcv.Main'
+    mainClass = 'com.nano.regexcv.Main'
 }
 
 compileJava {
     options.compilerArgs << "-Xlint:deprecation"
 }
 
-
 jar {
     manifest {
-        attributes 'Main-Class': application.mainClassName,
+        attributes 'Main-Class': application.mainClass,
                 'Implementation-Version': version,
                 'Implementation-Title': 'regexcv'
     }
@@ -41,21 +41,10 @@ jar {
     }
 }
 
-jacocoTestReport {
-    reports {
-        html.enabled true
-        xml.enabled false
-    }
-}
-
-tasks.named('check') {
-    dependsOn tasks.named('testCodeCoverageReport', JacocoReport)
-}
-
 spotless {
     format 'misc', {
         target '*.gradle', '*.md', '.gitignore'
-                indentWithSpaces(4)
+        indentWithSpaces(4)
         trimTrailingWhitespace()
         endWithNewline()
     }
