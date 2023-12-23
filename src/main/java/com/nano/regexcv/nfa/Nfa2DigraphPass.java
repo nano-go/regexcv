@@ -16,9 +16,9 @@
 package com.nano.regexcv.nfa;
 
 import com.nano.regexcv.Pass;
-import com.nano.regexcv.util.CharacterClass;
 import com.nano.regexcv.util.CharacterRange;
 import com.nano.regexcv.util.Digraph;
+import com.nano.regexcv.util.ICharsNumTable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -26,13 +26,13 @@ import java.util.LinkedList;
 /** This converts a DFA into a digraph. */
 public class Nfa2DigraphPass implements Pass<Nfa, Digraph> {
 
-  private static CharacterRange getCharRange(CharacterClass table, int classNumber) {
-    return classNumber == 0 ? CharacterRange.EPSILON : table.getCharRange(classNumber);
+  private static CharacterRange getCharRange(ICharsNumTable table, int classNumber) {
+    return classNumber == 0 ? CharacterRange.EPSILON : table.getCharRangeOfNum(classNumber);
   }
 
   @Override
   public Digraph accept(Nfa nfa) {
-    CharacterClass charTable = nfa.getCharTable();
+    ICharsNumTable charTable = nfa.getCharTable();
     LinkedList<NfaState> stack = new LinkedList<>();
     HashMap<NfaState, Digraph.Node> nodes = new HashMap<>();
 

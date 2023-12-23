@@ -16,6 +16,7 @@
 package com.nano.regexcv.nfa;
 
 import com.nano.regexcv.Pass;
+import com.nano.regexcv.syntax.RTreeWithTable;
 import com.nano.regexcv.syntax.tree.RCharList;
 import com.nano.regexcv.syntax.tree.RCharRange;
 import com.nano.regexcv.syntax.tree.RCharRangeList;
@@ -27,34 +28,38 @@ import com.nano.regexcv.syntax.tree.RSingleCharacter;
 import com.nano.regexcv.syntax.tree.RTreeVisitor;
 import com.nano.regexcv.syntax.tree.RZeroOrMore;
 import com.nano.regexcv.syntax.tree.RegularExpression;
+import com.nano.regexcv.util.ICharsNumTable;
 
-public class RExpTree2NfaPass implements RTreeVisitor<Nfa>, Pass<RegularExpression, Nfa> {
+public class RExpTree2NfaPass implements RTreeVisitor<Nfa>, Pass<RTreeWithTable, Nfa> {
+
+  private ICharsNumTable table;
 
   @Override
-  public Nfa accept(RegularExpression input) {
-    return input.accept(this);
+  public Nfa accept(RTreeWithTable input) {
+    this.table = input.table;
+    var nfa = input.tree.accept(this);
+    this.table = null;
+    return nfa;
   }
 
   @Override
   public Nfa visit(RSingleCharacter node) {
-    var table = node.getCharClass();
     var nfa = new Nfa(table);
     var start = nfa.getStart();
     var end = nfa.getEnd();
-    start.addTransition(table.getClassNumber(node.getChar()), end);
+    start.addTransition(table.getNumOfChar(node.getChar()), end);
     return nfa;
   }
 
   @Override
   public Nfa visit(RCharList node) {
-    var table = node.getCharClass();
     var nfa = new Nfa(table);
     var start = nfa.getStart();
     var end = nfa.getEnd();
 
     var chs = node.getChars();
     for (char ch : chs) {
-      start.addTransition(table.getClassNumber(ch), end);
+      start.addTransition(table.getNumOfChar(ch), end);
     }
     if (chs.length == 0) {
       start.addEmptyTransition(end);
@@ -65,13 +70,12 @@ public class RExpTree2NfaPass implements RTreeVisitor<Nfa>, Pass<RegularExpressi
 
   @Override
   public Nfa visit(RCharRange node) {
-    var table = node.getCharClass();
     var nfa = new Nfa(table);
     var start = nfa.getStart();
     var end = nfa.getEnd();
 
-    var charClassRange = table.getClassNumberRange(node.getFromChar(), node.getToChar());
-    for (int i = charClassRange[0]; i <= charClassRange[1]; i++) {
+    var interval = table.getNumsOfCharRange(node.getFromChar(), node.getToChar()).get();
+    for (int i = interval.start; i <= interval.end; i++) {
       start.addTransition(i, end);
     }
 
@@ -80,15 +84,16 @@ public class RExpTree2NfaPass implements RTreeVisitor<Nfa>, Pass<RegularExpressi
 
   @Override
   public Nfa visit(RCharRangeList node) {
-    var table = node.getCharClass();
     var nfa = new Nfa(table);
     var start = nfa.getStart();
     var end = nfa.getEnd();
 
     var charRanges = node.getCharacterRanges();
     for (var range : charRanges) {
-      int[] classNums = table.getClassNumberRange(range.getFrom(), range.getTo());
-      for (int i : classNums) start.addTransition(i, end);
+      var interval = table.getNumsOfCharRange(range.getFrom(), range.getTo()).get();
+      for (int i = interval.start; i <= interval.end; i++) {
+        start.addTransition(i, end);
+      }
     }
     if (charRanges.length == 0) {
       start.addEmptyTransition(end);
@@ -99,7 +104,6 @@ public class RExpTree2NfaPass implements RTreeVisitor<Nfa>, Pass<RegularExpressi
 
   @Override
   public Nfa visit(RChoice node) {
-    var table = node.getCharClass();
     var nfa = new Nfa(table);
     var start = nfa.getStart();
     var end = nfa.getEnd();
@@ -121,7 +125,6 @@ public class RExpTree2NfaPass implements RTreeVisitor<Nfa>, Pass<RegularExpressi
 
   @Override
   public Nfa visit(RContatenation node) {
-    var table = node.getCharClass();
     var nfa = new Nfa(table);
     var start = nfa.getStart();
     var end = nfa.getEnd();

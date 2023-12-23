@@ -15,7 +15,7 @@
  */
 package com.nano.regexcv.dfa;
 
-import com.nano.regexcv.util.CharacterClass;
+import com.nano.regexcv.util.ICharsNumTable;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -24,14 +24,14 @@ public class Dfa {
   /** Visible for DfaMinimizer. */
   protected DfaState start;
 
-  protected CharacterClass table;
+  protected ICharsNumTable table;
 
-  public Dfa(DfaState start, CharacterClass table) {
+  public Dfa(DfaState start, ICharsNumTable table) {
     this.start = start;
     this.table = table;
   }
 
-  public CharacterClass getCharTable() {
+  public ICharsNumTable getCharTable() {
     return this.table;
   }
 

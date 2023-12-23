@@ -26,15 +26,14 @@ import com.nano.regexcv.syntax.tree.ROptional;
 import com.nano.regexcv.syntax.tree.RSingleCharacter;
 import com.nano.regexcv.syntax.tree.RZeroOrMore;
 import com.nano.regexcv.syntax.tree.RegularExpression;
-import com.nano.regexcv.util.CharacterClass;
 import com.nano.regexcv.util.CharacterRange;
-import com.nano.regexcv.util.CharacterRangeSet;
+import com.nano.regexcv.util.CharsNumTableBuilder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-public class RegexParser implements Pass<String, RegularExpression> {
+public class RegexParser implements Pass<String, RTreeWithTable> {
 
   private static final char EOF = (char) -1;
 
@@ -57,30 +56,27 @@ public class RegexParser implements Pass<String, RegularExpression> {
   private char[] chars;
   private char ch;
 
-  private CharacterRangeSet charRangeSet;
-  private CharacterClass charClass;
+  private CharsNumTableBuilder tableBuilder;
 
   @Override
-  public RegularExpression accept(String regex) {
+  public RTreeWithTable accept(String regex) {
     this.p = 0;
     this.ch = 0;
+    this.tableBuilder = new CharsNumTableBuilder();
     this.chars = regex.toCharArray();
-    this.charRangeSet = new CharacterRangeSet();
-    this.charClass = new CharacterClass();
     if (this.chars.length == 0 || this.chars[chars.length - 1] != EOF) {
       this.chars = Arrays.copyOf(this.chars, this.chars.length + 1);
       this.chars[chars.length - 1] = EOF;
     }
     advance();
-    RegularExpression r = parse();
+    RegularExpression tree = parse();
     if (!isEnd()) {
       error("Unexpecting the character '%s'.", ch);
     }
-    charClass.generateTable(charRangeSet);
-    charClass = null;
-    charRangeSet = null;
+    var table = this.tableBuilder.build();
+    this.tableBuilder = null;
     chars = null;
-    return r;
+    return new RTreeWithTable(tree, table);
   }
 
   private void error(String format, Object... args) {
@@ -114,30 +110,25 @@ public class RegexParser implements Pass<String, RegularExpression> {
     return false;
   }
 
-  private <T extends RegularExpression> T newRegex(T regex) {
-    regex.setCharacterClass(this.charClass);
-    return regex;
-  }
-
   private RegularExpression newCharRangeList(char... chs) {
     CharacterRange[] charRanges = new CharacterRange[chs.length / 2];
     for (int i = 0; i < chs.length; i += 2) {
       charRanges[i / 2] = new CharacterRange(chs[i], chs[i + 1]);
-      charRangeSet.addRange(chs[i], chs[i + 1]);
+      this.tableBuilder.addCharRange(chs[i], chs[i + 1]);
     }
-    return newRegex(new RCharRangeList(charRanges));
+    return new RCharRangeList(charRanges);
   }
 
   private RegularExpression newCharList(char... chs) {
     for (char ch : chs) {
-      charRangeSet.addChar(ch);
+      this.tableBuilder.addChar(ch);
     }
-    return newRegex(new RCharList(chs));
+    return new RCharList(chs);
   }
 
   private RegularExpression newCharRange(char from, char to) {
-    charRangeSet.addRange(from, to);
-    return newRegex(new RCharRange(from, to));
+    this.tableBuilder.addCharRange(from, to);
+    return new RCharRange(from, to);
   }
 
   private RegularExpression parse() {
@@ -148,7 +139,7 @@ public class RegexParser implements Pass<String, RegularExpression> {
     if (concatenation.size() == 1) {
       return concatenation.get(0);
     }
-    return newRegex(new RContatenation(concatenation));
+    return new RContatenation(concatenation);
   }
 
   private RegularExpression parseChoice() {
@@ -163,7 +154,7 @@ public class RegexParser implements Pass<String, RegularExpression> {
       regex = parseTerm();
       regexList.add(regex);
     } while (got('|'));
-    return newRegex(new RChoice(regexList));
+    return new RChoice(regexList);
   }
 
   private RegularExpression parseTerm() {
@@ -259,8 +250,8 @@ public class RegexParser implements Pass<String, RegularExpression> {
         error("Illegal escape character '" + ch + "'.");
     }
     if (esch != EOF) {
-      charRangeSet.addChar(esch);
-      regex = newRegex(new RSingleCharacter(esch));
+      this.tableBuilder.addChar(esch);
+      regex = new RSingleCharacter(esch);
     }
     advance();
     return regex;
@@ -272,8 +263,8 @@ public class RegexParser implements Pass<String, RegularExpression> {
       char from = this.ch;
       advance();
       if (this.ch != '-') {
-        charRangeSet.addChar(from);
-        choiceList.add(newRegex(new RSingleCharacter(from)));
+        this.tableBuilder.addChar(from);
+        choiceList.add(new RSingleCharacter(from));
         continue;
       }
       advance();
@@ -283,7 +274,7 @@ public class RegexParser implements Pass<String, RegularExpression> {
       choiceList.add(newCharRange(from, this.ch));
       advance();
     }
-    return newRegex(new RChoice(choiceList));
+    return new RChoice(choiceList);
   }
 
   private RegularExpression parseSingleChar() {
@@ -291,22 +282,22 @@ public class RegexParser implements Pass<String, RegularExpression> {
       error("Unexpecting the meta character '%s'.", ch);
     }
     char ch = this.ch;
-    charRangeSet.addChar(ch);
+    this.tableBuilder.addChar(ch);
     advance();
-    return newRegex(new RSingleCharacter(ch));
+    return new RSingleCharacter(ch);
   }
 
   private RegularExpression parseSuffix(RegularExpression regex) {
     switch (ch) {
       case '*':
         advance();
-        return newRegex(new RZeroOrMore(regex));
+        return new RZeroOrMore(regex);
       case '+':
         advance();
-        return newRegex(new ROneOrMore(regex));
+        return new ROneOrMore(regex);
       case '?':
         advance();
-        return newRegex(new ROptional(regex));
+        return new ROptional(regex);
     }
     return regex;
   }

@@ -18,7 +18,7 @@ package com.nano.regexcv.dfa;
 import com.nano.regexcv.Pass;
 import com.nano.regexcv.nfa.Nfa;
 import com.nano.regexcv.nfa.NfaState;
-import com.nano.regexcv.util.CharacterClass;
+import com.nano.regexcv.util.ICharsNumTable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -54,7 +54,7 @@ public class SubsetConstructionPass implements Pass<Nfa, Dfa> {
 
   @Override
   public Dfa accept(Nfa nfa) {
-    CharacterClass table = nfa.getCharTable();
+    ICharsNumTable table = nfa.getCharTable();
     LinkedList<DState> stack = new LinkedList<>();
     HashMap<DState, DfaState> dstates = new HashMap<>();
     final int charSetCount = table.getTableSize();

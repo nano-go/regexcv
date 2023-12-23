@@ -15,21 +15,21 @@
  */
 package com.nano.regexcv.nfa;
 
-import com.nano.regexcv.util.CharacterClass;
+import com.nano.regexcv.util.ICharsNumTable;
 
 public class Nfa {
 
-  protected CharacterClass table;
+  protected ICharsNumTable table;
   protected NfaState start, end;
 
-  public Nfa(CharacterClass table) {
+  public Nfa(ICharsNumTable table) {
     this.table = table;
     this.start = new NfaState(table.getTableSize());
     this.end = new NfaState(table.getTableSize());
     this.end.markFinalState();
   }
 
-  public CharacterClass getCharTable() {
+  public ICharsNumTable getCharTable() {
     return table;
   }
 

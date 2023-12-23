@@ -15,7 +15,7 @@
  */
 package com.nano.regexcv.nfa;
 
-import com.nano.regexcv.util.CharacterClass;
+import com.nano.regexcv.util.ICharsNumTable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,7 +33,7 @@ public class NfaState {
   }
 
   public void addEmptyTransition(NfaState state) {
-    addTransition(CharacterClass.EPSILON_CHAR_CLASS, state);
+    addTransition(ICharsNumTable.EPSILON_CHAR_NUM, state);
   }
 
   public void addTransition(int charClass, NfaState state) {
@@ -51,11 +51,11 @@ public class NfaState {
   }
 
   public void removeEpsilonTransitions() {
-    transitions[CharacterClass.EPSILON_CHAR_CLASS] = null;
+    transitions[ICharsNumTable.EPSILON_CHAR_NUM] = null;
   }
 
   public Set<NfaState> getEpsilonTransitions() {
-    Set<NfaState> states = transitions[CharacterClass.EPSILON_CHAR_CLASS];
+    Set<NfaState> states = transitions[ICharsNumTable.EPSILON_CHAR_NUM];
     return states != null ? states : Collections.emptySet();
   }
 

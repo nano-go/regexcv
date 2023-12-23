@@ -13,9 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv.syntax.tree;
+package com.nano.regexcv.syntax;
 
-public abstract class RegularExpression {
+import com.nano.regexcv.syntax.tree.RegularExpression;
+import com.nano.regexcv.util.ICharsNumTable;
 
-  public abstract <Out> Out accept(RTreeVisitor<Out> visitor);
+public class RTreeWithTable {
+
+  public RegularExpression tree;
+  public ICharsNumTable table;
+
+  public RTreeWithTable(RegularExpression tree, ICharsNumTable table) {
+    this.tree = tree;
+    this.table = table;
+  }
 }

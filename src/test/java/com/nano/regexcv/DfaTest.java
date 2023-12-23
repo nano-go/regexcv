@@ -21,7 +21,7 @@ import com.nano.regexcv.dfa.DfaState;
 import com.nano.regexcv.dfa.SubsetConstructionPass;
 import com.nano.regexcv.nfa.RExpTree2NfaPass;
 import com.nano.regexcv.syntax.RegexParser;
-import com.nano.regexcv.util.CharacterClass;
+import com.nano.regexcv.util.ICharsNumTable;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class DfaTest {
 
   private static class MPattern {
     private Dfa dfa;
-    private CharacterClass charClass;
+    private ICharsNumTable table;
 
     private String pattern;
 
@@ -41,7 +41,7 @@ public class DfaTest {
               .next(new RExpTree2NfaPass())
               .next(new SubsetConstructionPass())
               .accept(pattern);
-      this.charClass = dfa.getCharTable();
+      this.table = dfa.getCharTable();
       this.pattern = pattern;
     }
 
@@ -55,8 +55,8 @@ public class DfaTest {
       char[] chs = text.toCharArray();
       for (int i = 0; i < chs.length; i++) {
         char ch = chs[i];
-        int classNumber = charClass.getInputCharClassNumber(ch);
-        if (classNumber == CharacterClass.INVALID_CHAR_CLASS) {
+        int classNumber = table.queryNumOfInputChar(ch);
+        if (classNumber == ICharsNumTable.INVALID_CHAR_NUM) {
           return false;
         }
         s = s.getState(classNumber);
@@ -176,14 +176,17 @@ public class DfaTest {
   private void matches(MPattern pattern, String[] matched, String[] unmatched) {
     for (String text : matched) {
       Assert.assertTrue(
-          String.format("Expect the text '%s' is matched by the pattern '%s'.", text, pattern),
+          String.format(
+              "Table: %s; Expect the text '%s' is matched by the pattern '%s'.",
+              pattern.table.getTable(), text, pattern),
           pattern.match(text));
     }
 
     for (String text : unmatched) {
       Assert.assertFalse(
           String.format(
-              "Don't expect the text '%s' is matched by the pattern '%s'.", text, pattern),
+              "Table: %s; Don't expect the text '%s' is matched by the pattern '%s'.",
+              pattern.table.getTable(), text, pattern),
           pattern.match(text));
     }
   }

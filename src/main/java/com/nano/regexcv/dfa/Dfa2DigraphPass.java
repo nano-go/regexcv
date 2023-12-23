@@ -16,8 +16,8 @@
 package com.nano.regexcv.dfa;
 
 import com.nano.regexcv.Pass;
-import com.nano.regexcv.util.CharacterClass;
 import com.nano.regexcv.util.Digraph;
+import com.nano.regexcv.util.ICharsNumTable;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -26,7 +26,7 @@ public class Dfa2DigraphPass implements Pass<Dfa, Digraph> {
 
   @Override
   public Digraph accept(Dfa dfa) {
-    CharacterClass charClass = dfa.getCharTable();
+    ICharsNumTable charClass = dfa.getCharTable();
     LinkedList<DfaState> stack = new LinkedList<>();
 
     HashMap<DfaState, Digraph.Node> nodes = new HashMap<>();
@@ -48,7 +48,7 @@ public class Dfa2DigraphPass implements Pass<Dfa, Digraph> {
           nodes.put(toDstate, toNode);
           stack.push(toDstate);
         }
-        node.addEdge(charClass.getCharRange(i + 1), toNode);
+        node.addEdge(charClass.getCharRangeOfNum(i + 1), toNode);
       }
     }
 
