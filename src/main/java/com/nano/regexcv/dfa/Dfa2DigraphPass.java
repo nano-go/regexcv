@@ -26,7 +26,7 @@ public class Dfa2DigraphPass implements Pass<Dfa, Digraph> {
 
   @Override
   public Digraph accept(Dfa dfa) {
-    ICharsNumTable charClass = dfa.getCharTable();
+    ICharsNumTable charClass = dfa.getCharsNumTable();
     LinkedList<DfaState> stack = new LinkedList<>();
 
     HashMap<DfaState, Digraph.Node> nodes = new HashMap<>();

@@ -41,7 +41,7 @@ public class DfaTest {
               .next(new RExpTree2NfaPass())
               .next(new SubsetConstructionPass())
               .accept(pattern);
-      this.table = dfa.getCharTable();
+      this.table = dfa.getCharsNumTable();
       this.pattern = pattern;
     }
 

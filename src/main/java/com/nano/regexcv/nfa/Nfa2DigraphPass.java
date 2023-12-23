@@ -32,7 +32,7 @@ public class Nfa2DigraphPass implements Pass<Nfa, Digraph> {
 
   @Override
   public Digraph accept(Nfa nfa) {
-    ICharsNumTable charTable = nfa.getCharTable();
+    ICharsNumTable charTable = nfa.getCharsNumTable();
     LinkedList<NfaState> stack = new LinkedList<>();
     HashMap<NfaState, Digraph.Node> nodes = new HashMap<>();
 

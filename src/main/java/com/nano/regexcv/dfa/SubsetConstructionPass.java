@@ -54,7 +54,7 @@ public class SubsetConstructionPass implements Pass<Nfa, Dfa> {
 
   @Override
   public Dfa accept(Nfa nfa) {
-    ICharsNumTable table = nfa.getCharTable();
+    ICharsNumTable table = nfa.getCharsNumTable();
     LinkedList<DState> stack = new LinkedList<>();
     HashMap<DState, DfaState> dstates = new HashMap<>();
     final int charSetCount = table.getTableSize();

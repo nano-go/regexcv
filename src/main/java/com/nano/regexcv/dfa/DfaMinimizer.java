@@ -165,7 +165,7 @@ public class DfaMinimizer implements Pass<Dfa, Dfa> {
       }
     }
 
-    return new Dfa(groupMap.get(groupList.get(dfa.getStart())), dfa.getCharTable());
+    return new Dfa(groupMap.get(groupList.get(dfa.getStart())), dfa.getCharsNumTable());
   }
 
   private static DfaState getStateFromMap(

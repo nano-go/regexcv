@@ -29,7 +29,7 @@ public class Nfa {
     this.end.markFinalState();
   }
 
-  public ICharsNumTable getCharTable() {
+  public ICharsNumTable getCharsNumTable() {
     return table;
   }
 

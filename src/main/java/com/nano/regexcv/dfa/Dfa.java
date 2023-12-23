@@ -31,7 +31,7 @@ public class Dfa {
     this.table = table;
   }
 
-  public ICharsNumTable getCharTable() {
+  public ICharsNumTable getCharsNumTable() {
     return this.table;
   }
 
