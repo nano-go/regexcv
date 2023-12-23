@@ -15,6 +15,8 @@
  */
 package com.nano.regexcv.util;
 
+import java.util.ArrayList;
+
 public class CharacterRange implements Comparable<CharacterRange>, Digraph.Acception {
 
   public static final CharacterRange EPSILON = new CharacterRange('ε', 'ε');
@@ -26,6 +28,36 @@ public class CharacterRange implements Comparable<CharacterRange>, Digraph.Accep
 
   public static int hashCode(char from, char to) {
     return from * 31 + to;
+  }
+
+  /**
+   * Use binary-search algorithm to find a character range that contains the specified character
+   * 'ch'.
+   *
+   * @param arr The sorted list.
+   * @param ch The specified character.
+   * @return The index of the character range that contains the given char or -1 if the char is out
+   *     of the character range list.
+   */
+  public static int binarySearch(ArrayList<CharacterRange> arr, char ch) {
+    var l = 0;
+    var r = arr.size() - 1;
+
+    while (r >= l) {
+      var mid = l + ((r - l) >> 1);
+      var chRange = arr.get(mid);
+      if (chRange.contains(ch)) {
+        return mid;
+      }
+
+      if (ch > chRange.to) {
+        l = mid + 1;
+      } else {
+        r = mid - 1;
+      }
+    }
+
+    return -1;
   }
 
   protected static String charToString(char ch) {
@@ -65,6 +97,10 @@ public class CharacterRange implements Comparable<CharacterRange>, Digraph.Accep
 
   public char getTo() {
     return to;
+  }
+
+  public boolean contains(char ch) {
+    return ch >= from && ch <= to;
   }
 
   @Override
