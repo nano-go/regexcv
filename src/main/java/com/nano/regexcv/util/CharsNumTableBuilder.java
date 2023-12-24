@@ -33,13 +33,11 @@ public class CharsNumTableBuilder {
   public CharsNumTableBuilder addCharRange(CharacterRange range) {
     return this.addCharRange(range.from, range.to);
   }
-  ;
 
   public CharsNumTableBuilder addCharRange(char from, char to) {
     this.charRangesSet.addRange(from, to);
     return this;
   }
-  ;
 
   public ICharsNumTable build() {
     var result = new ArrayList<CharacterRange>();
@@ -60,12 +58,15 @@ public class CharsNumTableBuilder {
       List<CharacterRange> table, int i) {
     var result = new ArrayList<CharacterRange>();
     var prev = table.get(i++);
+    var right = prev.to;
     result.add(prev);
     while (i < table.size()) {
       var range = table.get(i++);
-      if (range.from <= prev.to) {
-        result.add(range);
+      if (range.from > right) {
+        break;
       }
+      result.add(range);
+      right = right > range.to ? right : range.to;
     }
     return result;
   }
@@ -73,30 +74,31 @@ public class CharsNumTableBuilder {
   protected ArrayList<CharacterRange> splitOverlappedRanges(List<CharacterRange> ranges) {
     var result = new ArrayList<CharacterRange>();
     var chars = CharsNumTableBuilder.getSortedCharArray(ranges);
-    if (chars.size() == 1) {
-      var ch = chars.get(0);
-      result.add(new CharacterRange(ch, ch));
-      return result;
-    }
-    var prevCh = chars.get(0);
-    for (int i = 1; i < chars.size(); i++) {
+
+    var i = 0;
+    while (true) {
       var ch = chars.get(i);
       var isInLeftSet = this.charRangesSet.isLeftChar(ch);
       var isInRightSet = this.charRangesSet.isRightChar(ch);
-      if (isInLeftSet && isInRightSet) {
-        if (prevCh != ch) {
-          result.add(new CharacterRange(prevCh, (char) (ch - 1)));
+
+      if (isInRightSet) {
+        if (isInLeftSet) {
+          result.add(new CharacterRange(ch, ch));
         }
-        result.add(new CharacterRange(ch, ch));
-        prevCh = (char) (ch + 1);
-      } else if (isInLeftSet) {
-        result.add(new CharacterRange(prevCh, (char) (ch - 1)));
-        prevCh = ch;
-      } else if (isInRightSet) {
-        result.add(new CharacterRange(prevCh, ch));
-        prevCh = (char) (ch + 1);
+        ch++;
+      }
+      if (++i >= chars.size()) {
+        break;
+      }
+      var next = chars.get(i);
+      if (this.charRangesSet.isLeftChar(next)) {
+        next--;
+      }
+      if (ch <= next) {
+        result.add(new CharacterRange(ch, next));
       }
     }
+
     return result;
   }
 
