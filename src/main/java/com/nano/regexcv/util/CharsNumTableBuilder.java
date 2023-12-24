@@ -56,7 +56,8 @@ public class CharsNumTableBuilder {
     return new CharsNumTableImpl(result);
   }
 
-  protected ArrayList<CharacterRange> getOverlappedRangesFrom(List<CharacterRange> table, int i) {
+  protected static ArrayList<CharacterRange> getOverlappedRangesFrom(
+      List<CharacterRange> table, int i) {
     var result = new ArrayList<CharacterRange>();
     var prev = table.get(i++);
     result.add(prev);
