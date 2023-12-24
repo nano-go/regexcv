@@ -53,7 +53,6 @@ public class CharsNumTableBuilder {
       i += overlappedRanges.size();
     }
 
-    System.out.println(result);
     return new CharsNumTableImpl(result);
   }
 
