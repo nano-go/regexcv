@@ -243,6 +243,7 @@ public class RegexParser implements Pass<String, RTreeWithTable> {
       case '*':
       case '+':
       case '?':
+      case '|':
         esch = ch;
         break;
 
