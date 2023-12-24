@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv;
+package com.nano.regexcv.syntax;
 
 import static org.junit.Assert.*;
 
-import com.nano.regexcv.syntax.ParserException;
-import com.nano.regexcv.syntax.RegexParser;
 import org.junit.Test;
 
 public class ParserTest {

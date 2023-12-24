@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv;
+package com.nano.regexcv.util;
 
 import static org.junit.Assert.*;
 
-import com.nano.regexcv.util.CharacterRange;
-import com.nano.regexcv.util.CharacterRangeSet;
 import java.util.HashSet;
 import org.junit.Test;
 
