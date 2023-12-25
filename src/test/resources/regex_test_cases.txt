@@ -1,0 +1,160 @@
+PATTERN: //, /[]/, /()/
+MATCHES: ""
+UNMATCH: "abc", "ab", "a"
+
+PATTERN: /ab/
+MATCHES: "ab"
+UNMATCH: "", "a", "aa", "b", "abb", "aba", "abb"
+
+PATTERN: /aaa/
+MATCHES: "aaa"
+UNMATCH: "", "a", "aa", "aaaa", "aba", "aaaaa"
+
+PATTERN: /a/ 
+MATCHES: "a"
+UNMATCH: "", "aa", "aba", "aaa", "b", "c", "9"
+
+
+# Quantifier
+
+PATTERN: /a*/
+MATCHES: "", "a", "aa", "aaa", "aaaa", "aaaaaaaaaaaaaaa"
+UNMATCH: "b", "ab", "aaaab", "aaaaaaab", "aaaaaaa9", "bba"
+
+PATTERN: /aa*/
+MATCHES: "a", "aa", "aaa", "aaaaaa"
+UNMATCH: "", "ab", "abb", "aaab"
+
+PATTERN: /aab*/
+MATCHES: "aa", "aabb", "aabbb"
+UNMATCH: "", "a", "aaa", "aaba"
+
+PATTERN: /a+/
+MATCHES: "a", "aa", "aaa"
+UNMATCH: "", "ab", "ba", "baaaa"
+
+PATTERN: /f*o+o/
+MATCHES: "oo", "ooo", "fooooooooo", "ffffffooooo"
+UNMATCH: "", "f", "fo", "fffffo", "ffffooob"
+
+PATTERN: /f?o?o?/
+MATCHES: "", "f", "fo", "o", "oo", "foo"
+UNMATCH: "foa", "fooo", "ffo"
+
+PATTERN: /b*a+r?/ 
+MATCHES: "a", "bar", "baaaaaaar", "ar", "aaaar", "bbbbbar", "bbaar"
+UNMATCH: "bbbbr", "bbarr", ""
+
+PATTERN: /colou?r/
+MATCHES: "color", "colour"
+UNMATCH: "", "coloor"
+
+
+# Choice
+
+PATTERN: /gr(e|a)y/, /gr[ea]y/, /gre|ay/
+MATCHES: "gray", "grey"
+UNMATCH: "graay", "gery", "ygar"
+
+PATTERN: /(foo)|(bar)/
+MATCHES: "foo", "bar"
+UNMATCH: "", "Foo", "Bar", "boo"
+
+PATTERN; /(prefixfoo)|(prefixbar)/, /(prefix)(foo)|(bar)/
+MATCHES: "prefixfoo", "prefixbar"
+UNMATCH: "", "prefix", "prefixboo", "bar", "prefixfar", "foo"
+
+PATTERN: /(pretty)|(president)|(present)|(prevent)|(prepare)/
+MATCHES: "pretty", "president", "present", "prevent", "prepare"
+UNMATCH: "", "prettys", "presi"
+
+PATTERN: /(foo)|(foo)|(foo)/
+MATCHES: "foo"
+UNMATCH: "", "foof", "fooO", "ffoo"
+
+
+# Character Class Group
+
+PATTERN: /[a-z]?/
+MATCHES: "", "a", "b", "h", "z"
+UNMATCH: "gg", "9", "(", "+"
+
+PATTERN: /[abc]/, /a|b|c/
+MATCHES: "a", "b", "c"
+UNMATCH: "e", "|", ""
+
+PATTERN: /[a-egk]/
+MATCHES: "a", "b", "c", "d", "e", "g", "k"
+UNMATCH: "", "f", "h", "j", "(", "cd"
+
+PATTERN: /[a-j1-7][2-5A-J]/
+MATCHES: "c4", "jJ", "7J", "2D", "24", "6E", "aJ"
+UNMATCH: "", "c6", "8J", "8K", "aj", "AJ", "76"
+
+PATTERN: /[.|()+*?]/
+MATCHES: ".", "|", "+", "*", "?", "(", ")"
+UNMATCH: "", "a", "$"
+
+
+
+# Meta Escape
+
+PATTERN: /\d+/, /[0-9]+/
+MATCHES: "0", "123", "112256", "123456789"
+UNMATCH: "", "abc", "2foo"
+
+PATTERN: /\w+/, /[a-zA-Z0-9_]+/
+MATCHES: "ab_cd", "foo1", "bar_345", "_ab", "FOOBAR", "AB_Jk8" 
+UNMATCH: "", "abc(", "ab_c ", " abc", "FOO*"
+
+PATTERN: /\s+/, /( |\n|\f|\t|\r)+/
+MATCHES: "    ", "\r\n\f\t "
+UNMATCH: "", " abc  ", " \r\ff", " \b"
+
+PATTERN: /.+/
+MATCHES: "Mod  &*", "foo  ", " HHH\n\r", "\bHeLLo", "你好"
+UNMATCH: ""
+
+
+# Complex Regex
+
+PATTERN: /[ab]*([e-fk]+|[e-g]+)?[0-9]+(123)?/
+MATCHES: "aaaabbbbbab999123", "fkfkfef123123", "ababbegeg010520" 
+UNMATCH: "", "abbabbbgggk010123", "123a", "abbbkkkk0112a"
+
+PATTERN: /(foo)*([e-k]+|[0-2]?)+/
+MATCHES: "", "foofoo", "fooek1", "foofg02", "11", "012efghijk"
+UNMATCH: "foofoozzz", "fghijklm"
+
+PATTERN: /([e-k]*[g-l]+)|([a-f]?[0-8])+[2-5]/
+MATCHES: "hijk4", "efghijkl4", "b8b8c52", "0123456782"
+UNMATCH: "", "efghijklf2", "aa85", "abcdef2"
+
+PATTERN: /(([a-p]+bd)?([o-tsyz]|(a[j-s]))|(a[c-p][h-z]*[0-4]*))+/
+MATCHES: "ebdajacy2", "ap", "apijk222", "bbdak", "s", "syzac4", "opopap", "afl", "afz4"
+UNMATCH: "", "opbaj", "opopbd0", "afz4b", "bbd"
+
+
+# Escape Characters
+PATTERN: /\+\*\?\[\]\(\)\|\\/
+MATCHES: "+*?[]()|\\"
+UNMATCH: "", "+?"
+
+PATTERN: /\+|\*|\?|\[|\]|\(|\||\)|\\/
+MATCHES: "+", "*", "?", "[", "]", "(", ")", "|", "\\"
+UNMATCH: "", "++", "+*"
+
+# Identifier
+PATTERN: /[a-zA-Z_$][a-zA-Z0-9_$]*/, /[a-zA-Z_$](\w|$)*/
+MATCHES: "foo", "bar1", "$ab", "String", "_foo", "FOO2_BAR", "a$b"
+UNMATCH: "", "1fOo", "2bar", "2_", "_aB3@", "a@b"
+
+# Tag
+PATTERN: /<\w+>.*<\w+>/
+MATCHES: "<foo>abc<foo>", "<a><a>", "<123>*()e92pu:/n()<<<<123>"
+UNMATCH: "", "<><>", "<a>abc<b", "<abc>*<*>"
+
+# Unicode
+PATTERN: /(哀民生之多艰)*/
+MATCHES: "", "哀民生之多艰哀民生之多艰"
+UNMATCH: "哀", "哀民生之多", "哀民生之多艰哀民生之多"
