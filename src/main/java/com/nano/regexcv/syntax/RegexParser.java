@@ -209,7 +209,7 @@ public class RegexParser implements Pass<String, RTreeWithTable> {
     RegularExpression regex = null;
     switch (ch) {
       case 'w':
-        regex = newCharRangeList('a', 'z', 'A', 'Z', '0', '9');
+        regex = newCharRangeList('a', 'z', 'A', 'Z', '0', '9', '_', '_');
         break;
       case 's':
         regex = newCharList(' ', '\t', '\r', '\n', '\f');
