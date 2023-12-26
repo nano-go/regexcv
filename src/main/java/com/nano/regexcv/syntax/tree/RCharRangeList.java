@@ -21,25 +21,35 @@ import java.util.List;
 
 public class RCharRangeList extends RegularExpression.TermExpr {
 
+  private boolean isNegated;
   private CharacterRange[] charRanges;
 
-  public RCharRangeList(RegularExpression.TermExpr... termExprs) {
+  public RCharRangeList(boolean isNegated, RegularExpression.TermExpr... termExprs) {
     this(
+        isNegated,
         Arrays.stream(termExprs)
             .flatMap(term -> term.toCharRangeList().stream())
             .toArray(CharacterRange[]::new));
   }
 
-  public RCharRangeList(List<CharacterRange> list) {
-    this(list.toArray(CharacterRange[]::new));
+  public RCharRangeList(boolean isNegated, List<CharacterRange> list) {
+    this(isNegated, list.toArray(CharacterRange[]::new));
   }
 
-  public RCharRangeList(CharacterRange[] charRanges) {
+  public RCharRangeList(boolean isNegated, CharacterRange[] charRanges) {
+    this.isNegated = isNegated;
     this.charRanges = CharacterRange.mergeOverlappedRanges(charRanges);
+    if (isNegated) {
+      this.charRanges = CharacterRange.inversedRanges(this.charRanges);
+    }
   }
 
   public CharacterRange[] getCharacterRanges() {
     return this.charRanges;
+  }
+
+  public boolean isNegated() {
+    return this.isNegated;
   }
 
   @Override

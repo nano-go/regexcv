@@ -101,7 +101,7 @@ MATCHES: "abc", "abce", "abcd", "abcde"
 UNMATCH: "", "abcdd", "abced"
 
 
-# Character Class Group
+# Character Class
 
 PATTERN: /[a-z]?/
 MATCHES: "", "a", "b", "h", "z"
@@ -162,6 +162,42 @@ UNMATCH: "", "abc_\f(", "  AbH$l "
 PATTERN: /[.|()+*?]/
 MATCHES: ".", "|", "+", "*", "?", "(", ")"
 UNMATCH: "", "a", "$"
+
+PATTERN: /[^]/, /./
+MATCHES: "a", "_", "*", "8", "X". "^"
+UNMATCH: ""
+
+PATTERN: /[^^]+/
+MATCHES: "ajklo096*()![]&$#%@/.!"
+UNMATCH: "", "^", "abcd^", "*()^ab"
+
+PATTERN: /[^a-z]+/, /[^a-fg-z]+/, /[^a-ef-jk-no-z]+/, /[^h-jh-ka-eo-tr-zd-ge-fg-m]+/
+MATCHES: "ABCD0943()*%"
+UNMATCH: "", "a", "b", "A0BCd", "z", "s", "j", "f", "k", "e"
+
+PATTERN: /[^a-z0-9]+/
+MATCHES: "ABCD*%#&@"
+UNMATCH: "", "z", "a", "x", "0", "3", "9", "ABC7"
+
+PATTERN: /[^.]+/
+MATCHES: "你好abcdefgHIJKLMNZOP[=><]0123456789*&%@)!*#"
+UNMATCH: "", "."
+
+PATTERN: /[^ab]+/
+MATCHES: "你好cdefgHIJKLMNZOP[=><]0123456789*&%@)!*#"
+UNMATCH: "", "a", "b"
+
+PATTERN: /[^j2-5h]+/, /[^jh2345]+/
+MATCHES: "你好abcdefgHIJKLMNZOP[=><]016789*&%@)!*#"
+UNMATCH: "", "j", "h", "2", "3", "4", "5"
+
+PATTERN: /[^\w]+/, /[^a-zA-Z0-9_]+/
+MATCHES: ":@"'~;!(<>/?)'"
+UNMATCH: "", "Hi", "Hello", "_", "8", "a", "b"
+
+PATTERN: /[^\d]+/, /[^0-9]+/
+MATCHES: "你好abcdefgHIJKLMNZOP[=><]*&%@)!*#"
+UNMATCH: "", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "foo1", "bar2"
 
 
 # Meta Escape

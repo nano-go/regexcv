@@ -89,7 +89,7 @@ public class InnerRegexParser {
     for (int i = 0; i < chs.length; i += 2) {
       charRanges[i / 2] = new CharacterRange(chs[i], chs[i + 1]);
     }
-    return new RCharRangeList(charRanges);
+    return new RCharRangeList(false, charRanges);
   }
 
   private RCharList newCharList(char... chs) {
@@ -238,12 +238,13 @@ public class InnerRegexParser {
    */
   private RCharRangeList parseCharClass() {
     List<CharacterRange> ranges = new ArrayList<>();
+    var negated = got('^');
     while (this.ch != ']' && this.ch != EOF) {
       var termExpr = parseCharRange();
       ranges.addAll(termExpr.toCharRangeList());
     }
     match(']', "Character class missing closing bracket.");
-    return new RCharRangeList(ranges);
+    return new RCharRangeList(negated, ranges);
   }
 
   /** Attempt to parse a charcater range like {@code 'a-z', '0-9'}. */
@@ -261,7 +262,7 @@ public class InnerRegexParser {
     var right = parseCharacterOrMetaEscape();
     // Support syntax '[a-\w]'
     if (!checkIsChar(right)) {
-      return new RCharRangeList(left, newCharExpr('-'), right);
+      return new RCharRangeList(false, left, newCharExpr('-'), right);
     }
     char end = ((RSingleCharacter) right).getChar();
     if (end < start) {

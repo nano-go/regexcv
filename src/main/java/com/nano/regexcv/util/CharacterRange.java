@@ -82,6 +82,22 @@ public class CharacterRange implements Comparable<CharacterRange>, Digraph.Accep
     return result.toArray(CharacterRange[]::new);
   }
 
+  public static CharacterRange[] inversedRanges(CharacterRange... ranges) {
+    var result = new ArrayList<>(ranges.length + 1);
+    var left = Character.MIN_VALUE;
+    for (var range : ranges) {
+      if (left < range.from) {
+        result.add(new CharacterRange(left, (char) (range.from - 1)));
+      }
+      if (range.to == Character.MAX_VALUE) {
+        return result.toArray(CharacterRange[]::new);
+      }
+      left = (char) (range.to + 1);
+    }
+    result.add(new CharacterRange(left, Character.MAX_VALUE));
+    return result.toArray(CharacterRange[]::new);
+  }
+
   protected static String charToString(char ch) {
     switch (ch) {
       case '\n':
