@@ -16,6 +16,8 @@
 package com.nano.regexcv.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 
 public class CharacterRange implements Comparable<CharacterRange>, Digraph.Acception {
 
@@ -58,6 +60,26 @@ public class CharacterRange implements Comparable<CharacterRange>, Digraph.Accep
     }
 
     return -1;
+  }
+
+  public static CharacterRange[] mergeOverlappedRanges(CharacterRange... ranges) {
+    if (ranges.length == 0) {
+      return new CharacterRange[0];
+    }
+    Arrays.sort(ranges);
+    var result = new LinkedList<CharacterRange>();
+    var left = ranges[0].from;
+    var right = ranges[0].to;
+    for (int i = 1; i < ranges.length; i++) {
+      var range = ranges[i];
+      if (range.from > right) {
+        result.add(new CharacterRange(left, right));
+        left = range.from;
+      }
+      right = right > range.to ? right : range.to;
+    }
+    result.add(new CharacterRange(left, right));
+    return result.toArray(CharacterRange[]::new);
   }
 
   protected static String charToString(char ch) {

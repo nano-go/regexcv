@@ -35,7 +35,7 @@ public class RCharRangeList extends RegularExpression.TermExpr {
   }
 
   public RCharRangeList(CharacterRange[] charRanges) {
-    this.charRanges = charRanges;
+    this.charRanges = CharacterRange.mergeOverlappedRanges(charRanges);
   }
 
   public CharacterRange[] getCharacterRanges() {
