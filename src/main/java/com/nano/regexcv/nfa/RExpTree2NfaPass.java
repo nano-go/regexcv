@@ -29,7 +29,7 @@ import com.nano.regexcv.syntax.tree.RSingleCharacter;
 import com.nano.regexcv.syntax.tree.RTreeVisitor;
 import com.nano.regexcv.syntax.tree.RZeroOrMore;
 import com.nano.regexcv.syntax.tree.RegularExpression;
-import com.nano.regexcv.util.ICharsNumTable;
+import com.nano.regexcv.table.ICharsNumTable;
 
 public class RExpTree2NfaPass implements RTreeVisitor<Nfa>, Pass<RTreeWithTable, Nfa> {
 

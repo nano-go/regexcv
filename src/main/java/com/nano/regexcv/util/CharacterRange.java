@@ -83,8 +83,8 @@ public class CharacterRange implements Comparable<CharacterRange>, Digraph.Accep
     return String.valueOf(ch);
   }
 
-  protected final char from;
-  protected final char to;
+  public final char from;
+  public final char to;
 
   public CharacterRange(char from, char to) {
     this.from = from;

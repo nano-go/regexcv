@@ -15,7 +15,7 @@
  */
 package com.nano.regexcv.dfa;
 
-import com.nano.regexcv.util.ICharsNumTable;
+import com.nano.regexcv.table.ICharsNumTable;
 import java.util.ArrayList;
 import java.util.HashSet;
 

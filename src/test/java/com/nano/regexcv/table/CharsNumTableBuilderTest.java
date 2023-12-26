@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv.util;
+package com.nano.regexcv.table;
 
+import com.nano.regexcv.util.CharacterRange;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Assert;
@@ -70,7 +71,8 @@ public class CharsNumTableBuilderTest {
           {"1-3,2-2,3-4", "1-1,2-2,3-3,4-4"},
           {"1-4,2-6,4-5,6-9", "1-1,2-3,4-4,5-5,6-6,7-9"},
           {"a-g,d-k,e-g", "a-c,d-d,e-g,h-k"},
-          {"a-f,e-k,g-l", "a-d,e-f,g-k,l-l"}
+          {"a-f,e-k,g-l", "a-d,e-f,g-k,l-l"},
+          {"a-b,a-a,a-e", "a-a,b-b,c-e"}
         };
 
     for (var testCase : TEST_CASES) {

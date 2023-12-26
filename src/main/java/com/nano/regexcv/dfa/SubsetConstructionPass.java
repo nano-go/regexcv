@@ -18,7 +18,7 @@ package com.nano.regexcv.dfa;
 import com.nano.regexcv.Pass;
 import com.nano.regexcv.nfa.Nfa;
 import com.nano.regexcv.nfa.NfaState;
-import com.nano.regexcv.util.ICharsNumTable;
+import com.nano.regexcv.table.ICharsNumTable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;

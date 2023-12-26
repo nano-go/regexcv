@@ -17,7 +17,7 @@ package com.nano.regexcv.dfa;
 
 import com.nano.regexcv.nfa.RExpTree2NfaPass;
 import com.nano.regexcv.syntax.RegexParser;
-import com.nano.regexcv.util.ICharsNumTable;
+import com.nano.regexcv.table.ICharsNumTable;
 
 public class DfaPattern {
   protected Dfa dfa;

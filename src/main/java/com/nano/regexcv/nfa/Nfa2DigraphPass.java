@@ -16,9 +16,9 @@
 package com.nano.regexcv.nfa;
 
 import com.nano.regexcv.Pass;
+import com.nano.regexcv.table.ICharsNumTable;
 import com.nano.regexcv.util.CharacterRange;
 import com.nano.regexcv.util.Digraph;
-import com.nano.regexcv.util.ICharsNumTable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;

@@ -16,7 +16,7 @@
 package com.nano.regexcv.syntax;
 
 import com.nano.regexcv.syntax.tree.RegularExpression;
-import com.nano.regexcv.util.ICharsNumTable;
+import com.nano.regexcv.table.ICharsNumTable;
 
 public class RTreeWithTable {
 

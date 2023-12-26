@@ -15,7 +15,7 @@
  */
 package com.nano.regexcv.nfa;
 
-import com.nano.regexcv.util.ICharsNumTable;
+import com.nano.regexcv.table.ICharsNumTable;
 
 public class Nfa {
 
