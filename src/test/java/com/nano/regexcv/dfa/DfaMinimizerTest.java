@@ -19,6 +19,7 @@ import static org.junit.Assert.*;
 
 import com.nano.regexcv.nfa.RExpTree2NfaPass;
 import com.nano.regexcv.syntax.RegexParser;
+import com.nano.regexcv.table.CharacterSetCollector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Test;
@@ -58,6 +59,7 @@ public class DfaMinimizerTest {
 
   private Dfa getMinimizedDfa(String regex) {
     return new RegexParser()
+        .next(new CharacterSetCollector())
         .next(new RExpTree2NfaPass())
         .next(new SubsetConstructionPass())
         .next(new DfaMinimizer())

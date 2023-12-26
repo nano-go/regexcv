@@ -24,6 +24,7 @@ import com.nano.regexcv.nfa.RExpTree2NfaPass;
 import com.nano.regexcv.nfa.RemoveEpsilonClosurePass;
 import com.nano.regexcv.syntax.ParserException;
 import com.nano.regexcv.syntax.RegexParser;
+import com.nano.regexcv.table.CharacterSetCollector;
 import com.nano.regexcv.util.Digraph;
 import com.nano.regexcv.util.DigraphDotGenerator;
 import org.apache.commons.cli.CommandLine;
@@ -116,7 +117,7 @@ public class Main {
     Pass<String, Nfa> pass;
 
     try {
-      pass = new RegexParser().next(new RExpTree2NfaPass());
+      pass = new RegexParser().next(new CharacterSetCollector()).next(new RExpTree2NfaPass());
     } catch (ParserException e) {
       System.err.println(e.getMessage());
       System.exit(8);

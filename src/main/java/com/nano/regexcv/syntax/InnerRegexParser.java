@@ -26,7 +26,6 @@ import com.nano.regexcv.syntax.tree.ROptional;
 import com.nano.regexcv.syntax.tree.RSingleCharacter;
 import com.nano.regexcv.syntax.tree.RZeroOrMore;
 import com.nano.regexcv.syntax.tree.RegularExpression;
-import com.nano.regexcv.table.CharsNumTableBuilder;
 import com.nano.regexcv.util.CharacterRange;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,22 +40,15 @@ public class InnerRegexParser {
   private char[] chars;
   private char ch;
 
-  private CharsNumTableBuilder tableBuilder;
-
   protected InnerRegexParser(CharSequence regex) {
     this.p = 0;
     this.ch = 0;
-    this.tableBuilder = new CharsNumTableBuilder();
     this.chars = regex.toString().toCharArray();
     if (this.chars.length == 0 || this.chars[chars.length - 1] != EOF) {
       this.chars = Arrays.copyOf(this.chars, this.chars.length + 1);
       this.chars[chars.length - 1] = EOF;
     }
     advance();
-  }
-
-  public CharsNumTableBuilder getTableBuilder() {
-    return tableBuilder;
   }
 
   private void error(String format, Object... args) {
@@ -96,25 +88,19 @@ public class InnerRegexParser {
     CharacterRange[] charRanges = new CharacterRange[chs.length / 2];
     for (int i = 0; i < chs.length; i += 2) {
       charRanges[i / 2] = new CharacterRange(chs[i], chs[i + 1]);
-      this.tableBuilder.addCharRange(chs[i], chs[i + 1]);
     }
     return new RCharRangeList(charRanges);
   }
 
   private RCharList newCharList(char... chs) {
-    for (char ch : chs) {
-      this.tableBuilder.addChar(ch);
-    }
     return new RCharList(chs);
   }
 
   private RCharRange newCharRange(char from, char to) {
-    this.tableBuilder.addCharRange(from, to);
     return new RCharRange(from, to);
   }
 
   private RSingleCharacter newCharExpr(char ch) {
-    this.tableBuilder.addChar(ch);
     return new RSingleCharacter(ch);
   }
 

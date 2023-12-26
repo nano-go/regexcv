@@ -16,14 +16,12 @@
 package com.nano.regexcv.syntax;
 
 import com.nano.regexcv.Pass;
+import com.nano.regexcv.syntax.tree.RegularExpression;
 
-public class RegexParser implements Pass<String, RTreeWithTable> {
+public class RegexParser implements Pass<String, RegularExpression> {
 
   @Override
-  public RTreeWithTable accept(String regex) {
-    var parser = new InnerRegexParser(regex);
-    var rtree = parser.parse();
-    var table = parser.getTableBuilder().build();
-    return new RTreeWithTable(rtree, table);
+  public RegularExpression accept(String regex) {
+    return new InnerRegexParser(regex).parse();
   }
 }

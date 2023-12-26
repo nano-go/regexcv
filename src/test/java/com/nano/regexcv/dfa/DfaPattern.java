@@ -17,6 +17,7 @@ package com.nano.regexcv.dfa;
 
 import com.nano.regexcv.nfa.RExpTree2NfaPass;
 import com.nano.regexcv.syntax.RegexParser;
+import com.nano.regexcv.table.CharacterSetCollector;
 import com.nano.regexcv.table.ICharsNumTable;
 
 public class DfaPattern {
@@ -28,6 +29,7 @@ public class DfaPattern {
   public DfaPattern(String pattern) {
     this.dfa =
         new RegexParser()
+            .next(new CharacterSetCollector())
             .next(new RExpTree2NfaPass())
             .next(new SubsetConstructionPass())
             .accept(pattern);

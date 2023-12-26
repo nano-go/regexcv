@@ -16,7 +16,6 @@
 package com.nano.regexcv.nfa;
 
 import com.nano.regexcv.Pass;
-import com.nano.regexcv.syntax.RTreeWithTable;
 import com.nano.regexcv.syntax.tree.RAlternation;
 import com.nano.regexcv.syntax.tree.RCharList;
 import com.nano.regexcv.syntax.tree.RCharRange;
@@ -30,6 +29,7 @@ import com.nano.regexcv.syntax.tree.RTreeVisitor;
 import com.nano.regexcv.syntax.tree.RZeroOrMore;
 import com.nano.regexcv.syntax.tree.RegularExpression;
 import com.nano.regexcv.table.ICharsNumTable;
+import com.nano.regexcv.table.RTreeWithTable;
 
 public class RExpTree2NfaPass implements RTreeVisitor<Nfa>, Pass<RTreeWithTable, Nfa> {
 
