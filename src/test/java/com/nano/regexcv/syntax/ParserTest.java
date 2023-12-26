@@ -22,8 +22,8 @@ import org.junit.Test;
 public class ParserTest {
 
   public static final String[] ERROR_REGEX = {
-    "[a-", "[z-a]", "[a-b", "[", "[w-\\q]", "(ab", "((ab)", "(ab))", "\\Poab", "a|", "a|b|", "|",
-    "a**", "*", "c++", "+", "a??", "?", "a|*", "a|+", "a|?", "(abc|)", ")"
+    "[a-", "[z-a]", "[a-b", "[", "[w-\\q]", "(ab", "((ab)", "(ab))", "\\Poab", "a**", "*", "c++",
+    "+", "a??", "?", "a|*", "a|+", "a|?", ")"
   };
 
   @Test(timeout = 2000)

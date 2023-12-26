@@ -17,11 +17,12 @@ package com.nano.regexcv.nfa;
 
 import com.nano.regexcv.Pass;
 import com.nano.regexcv.syntax.RTreeWithTable;
+import com.nano.regexcv.syntax.tree.RAlternation;
 import com.nano.regexcv.syntax.tree.RCharList;
 import com.nano.regexcv.syntax.tree.RCharRange;
 import com.nano.regexcv.syntax.tree.RCharRangeList;
-import com.nano.regexcv.syntax.tree.RChoice;
 import com.nano.regexcv.syntax.tree.RContatenation;
+import com.nano.regexcv.syntax.tree.REmpty;
 import com.nano.regexcv.syntax.tree.ROneOrMore;
 import com.nano.regexcv.syntax.tree.ROptional;
 import com.nano.regexcv.syntax.tree.RSingleCharacter;
@@ -103,7 +104,7 @@ public class RExpTree2NfaPass implements RTreeVisitor<Nfa>, Pass<RTreeWithTable,
   }
 
   @Override
-  public Nfa visit(RChoice node) {
+  public Nfa visit(RAlternation node) {
     var nfa = new Nfa(table);
     var start = nfa.getStart();
     var end = nfa.getEnd();
@@ -138,6 +139,15 @@ public class RExpTree2NfaPass implements RTreeVisitor<Nfa>, Pass<RTreeWithTable,
     }
     last.addEmptyTransition(end);
 
+    return nfa;
+  }
+
+  @Override
+  public Nfa visit(REmpty node) {
+    var nfa = new Nfa(table);
+    var start = nfa.getStart();
+    var end = nfa.getEnd();
+    start.addEmptyTransition(end);
     return nfa;
   }
 

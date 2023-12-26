@@ -15,25 +15,23 @@
  */
 package com.nano.regexcv.syntax.tree;
 
-public interface RTreeVisitor<Out> {
+import java.util.Collections;
+import java.util.List;
 
-  public Out visit(RSingleCharacter node);
+public class RAlternation extends RegularExpression {
 
-  public Out visit(RCharList node);
+  private List<RegularExpression> regexList;
 
-  public Out visit(RCharRange node);
+  public RAlternation(List<RegularExpression> regexList) {
+    this.regexList = regexList != null ? regexList : Collections.emptyList();
+  }
 
-  public Out visit(RCharRangeList node);
+  @Override
+  public <Out> Out accept(RTreeVisitor<Out> visitor) {
+    return visitor.visit(this);
+  }
 
-  public Out visit(RAlternation node);
-
-  public Out visit(RContatenation node);
-
-  public Out visit(REmpty node);
-
-  public Out visit(ROneOrMore node);
-
-  public Out visit(ROptional node);
-
-  public Out visit(RZeroOrMore node);
+  public List<RegularExpression> getRegexList() {
+    return this.regexList;
+  }
 }

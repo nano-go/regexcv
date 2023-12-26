@@ -15,23 +15,11 @@
  */
 package com.nano.regexcv.syntax.tree;
 
-import java.util.Collections;
-import java.util.List;
-
-public class RChoice extends RegularExpression {
-
-  private List<RegularExpression> regexList;
-
-  public RChoice(List<RegularExpression> regexList) {
-    this.regexList = regexList != null ? regexList : Collections.emptyList();
-  }
+/** This class represents an empty string. */
+public class REmpty extends RegularExpression {
 
   @Override
   public <Out> Out accept(RTreeVisitor<Out> visitor) {
     return visitor.visit(this);
-  }
-
-  public List<RegularExpression> getRegexList() {
-    return this.regexList;
   }
 }

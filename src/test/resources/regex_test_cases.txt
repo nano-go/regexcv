@@ -50,7 +50,7 @@ MATCHES: "color", "colour"
 UNMATCH: "", "coloor"
 
 
-# Choice
+# Alternation
 
 PATTERN: /gr(e|a)y/, /gr[ea]y/, /gre|ay/
 MATCHES: "gray", "grey"
@@ -71,6 +71,34 @@ UNMATCH: "", "prettys", "presi"
 PATTERN: /(foo)|(foo)|(foo)/
 MATCHES: "foo"
 UNMATCH: "", "foof", "fooO", "ffoo"
+
+PATTERN: /|/, /||/, /|||/, /(|)/, /(||)/, /(|||)/
+MATCHES: ""
+UNMATCH: ".", "a", "b"
+
+PATTERN: /a||b/
+MATCHES: "a", "b", ""
+UNMATCH: "ab"
+
+PATTERN: /|ab/, /(|a)b/, /(a|)b/
+MATCHES: "ab", "b"
+UNMATCH: "", "ba"
+
+PATTERN: /|a/, /a|/, /(|a)/, /(a|)
+MATCHES: "", "a"
+UNMATCH: "b", "aa"
+
+PATTERN: /a|||b/
+MATCHES: "", "a", "b"
+UNMATCH: "ab"
+
+PATTERN: /||||a/
+MATCHES: "", "a"
+UNMATCH: "ab"
+
+PATTERN: /abc(d||)e|/, /abc(|d|)e|/, /abc(||d)e|/
+MATCHES: "abc", "abce", "abcd", "abcde"
+UNMATCH: "", "abcdd", "abced"
 
 
 # Character Class Group

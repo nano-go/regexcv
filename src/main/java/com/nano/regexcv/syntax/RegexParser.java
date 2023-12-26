@@ -16,11 +16,12 @@
 package com.nano.regexcv.syntax;
 
 import com.nano.regexcv.Pass;
+import com.nano.regexcv.syntax.tree.RAlternation;
 import com.nano.regexcv.syntax.tree.RCharList;
 import com.nano.regexcv.syntax.tree.RCharRange;
 import com.nano.regexcv.syntax.tree.RCharRangeList;
-import com.nano.regexcv.syntax.tree.RChoice;
 import com.nano.regexcv.syntax.tree.RContatenation;
+import com.nano.regexcv.syntax.tree.REmpty;
 import com.nano.regexcv.syntax.tree.ROneOrMore;
 import com.nano.regexcv.syntax.tree.ROptional;
 import com.nano.regexcv.syntax.tree.RSingleCharacter;
@@ -133,7 +134,7 @@ public class RegexParser implements Pass<String, RTreeWithTable> {
   private RegularExpression parseRegex() {
     LinkedList<RegularExpression> concatenation = new LinkedList<>();
     while (!isEnd() && ch != ')') {
-      concatenation.add(parseChoice());
+      concatenation.add(parseAlternation());
     }
     if (concatenation.size() == 1) {
       return concatenation.get(0);
@@ -142,25 +143,33 @@ public class RegexParser implements Pass<String, RTreeWithTable> {
   }
 
   /**
-   * Attempt to parse multiple choice-expressions.
+   * Attempt to parse multiple alternation-expressions.
    *
    * <pre>{@code
-   * Syntax: Term ( '|' Term )*
+   * Syntax: ( Term ( '|' [ Term ] )* ) | ( '|' [ Term ] )+ )
    * }</pre>
    */
-  private RegularExpression parseChoice() {
-    RegularExpression regex = parseTerm();
-    if (ch != '|') {
-      return regex;
+  private RegularExpression parseAlternation() {
+    RegularExpression left = parseLeftOfAlternation();
+    while (got('|')) {
+      var right = parseRightOfAlternation();
+      left = new RAlternation(List.of(left, right));
     }
-    advance();
-    List<RegularExpression> regexList = new ArrayList<>();
-    regexList.add(regex);
-    do {
-      regex = parseTerm();
-      regexList.add(regex);
-    } while (got('|'));
-    return new RChoice(regexList);
+    return left;
+  }
+
+  private RegularExpression parseLeftOfAlternation() {
+    if (this.ch == '|') {
+      return new REmpty();
+    }
+    return parseTerm();
+  }
+
+  private RegularExpression parseRightOfAlternation() {
+    if (isEnd() || this.ch == ')' || this.ch == '|') {
+      return new REmpty();
+    }
+    return parseTerm();
   }
 
   /**
