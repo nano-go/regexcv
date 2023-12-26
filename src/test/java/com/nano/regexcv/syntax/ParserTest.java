@@ -22,9 +22,8 @@ import org.junit.Test;
 public class ParserTest {
 
   public static final String[] ERROR_REGEX = {
-    "[a-", "[a-]", "[a-b", "[", "(ab", "((ab)", "\\Poab", "a|",
-    "a|b|", "|", "a**", "*", "c++", "+", "a??", "?",
-    "a|*", "a|+", "a|?", "(abc|)", ")"
+    "[a-", "[z-a]", "[a-b", "[", "[w-\\q]", "(ab", "((ab)", "(ab))", "\\Poab", "a|", "a|b|", "|",
+    "a**", "*", "c++", "+", "a??", "?", "a|*", "a|+", "a|?", "(abc|)", ")"
   };
 
   @Test(timeout = 2000)
@@ -34,7 +33,7 @@ public class ParserTest {
       try {
         parser.accept(pattern);
       } catch (ParserException e) {
-        System.out.println(e.getMessage());
+        System.out.printf("\"%s\": %s\n", pattern, e.getMessage());
         continue;
       }
       fail("Expected syntax error: " + pattern);

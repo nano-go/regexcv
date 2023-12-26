@@ -37,21 +37,6 @@ public class RegexParser implements Pass<String, RTreeWithTable> {
 
   private static final char EOF = (char) -1;
 
-  private static boolean isMetaChar(char ch) {
-    switch (ch) {
-      case '(':
-      case ')':
-      case '|':
-      case '*':
-      case '+':
-      case '?':
-      case '[':
-      case ']':
-        return true;
-    }
-    return false;
-  }
-
   private int p;
   private char[] chars;
   private char ch;
@@ -69,13 +54,13 @@ public class RegexParser implements Pass<String, RTreeWithTable> {
       this.chars[chars.length - 1] = EOF;
     }
     advance();
-    RegularExpression tree = parse();
+    RegularExpression tree = parseRegex();
     if (!isEnd()) {
       error("Unexpecting the character '%s'.", ch);
     }
     var table = this.tableBuilder.build();
     this.tableBuilder = null;
-    chars = null;
+    this.chars = null;
     return new RTreeWithTable(tree, table);
   }
 
@@ -94,12 +79,12 @@ public class RegexParser implements Pass<String, RTreeWithTable> {
     return ch == EOF;
   }
 
-  private void match(char expectedChar, String format, Object... args) {
+  private void match(char expectedChar, String errfmt, Object... args) {
     if (ch == expectedChar) {
       advance();
       return;
     }
-    error(format, args);
+    error(errfmt, args);
   }
 
   private boolean got(char ch) {
@@ -110,7 +95,9 @@ public class RegexParser implements Pass<String, RTreeWithTable> {
     return false;
   }
 
-  private RegularExpression newCharRangeList(char... chs) {
+  // Factory Methods
+
+  private RCharRangeList newCharRangeList(char... chs) {
     CharacterRange[] charRanges = new CharacterRange[chs.length / 2];
     for (int i = 0; i < chs.length; i += 2) {
       charRanges[i / 2] = new CharacterRange(chs[i], chs[i + 1]);
@@ -119,19 +106,31 @@ public class RegexParser implements Pass<String, RTreeWithTable> {
     return new RCharRangeList(charRanges);
   }
 
-  private RegularExpression newCharList(char... chs) {
+  private RCharList newCharList(char... chs) {
     for (char ch : chs) {
       this.tableBuilder.addChar(ch);
     }
     return new RCharList(chs);
   }
 
-  private RegularExpression newCharRange(char from, char to) {
+  private RCharRange newCharRange(char from, char to) {
     this.tableBuilder.addCharRange(from, to);
     return new RCharRange(from, to);
   }
 
-  private RegularExpression parse() {
+  private RSingleCharacter newCharExpr(char ch) {
+    this.tableBuilder.addChar(ch);
+    return new RSingleCharacter(ch);
+  }
+
+  // Parsing Methods
+
+  /**
+   * Parse a regular expression.
+   *
+   * <p>A regular expression is concatenated by multiple sub-expressions.
+   */
+  private RegularExpression parseRegex() {
     LinkedList<RegularExpression> concatenation = new LinkedList<>();
     while (!isEnd() && ch != ')') {
       concatenation.add(parseChoice());
@@ -142,6 +141,13 @@ public class RegexParser implements Pass<String, RTreeWithTable> {
     return new RContatenation(concatenation);
   }
 
+  /**
+   * Attempt to parse multiple choice-expressions.
+   *
+   * <pre>{@code
+   * Syntax: Term ( '|' Term )*
+   * }</pre>
+   */
   private RegularExpression parseChoice() {
     RegularExpression regex = parseTerm();
     if (ch != '|') {
@@ -157,14 +163,26 @@ public class RegexParser implements Pass<String, RTreeWithTable> {
     return new RChoice(regexList);
   }
 
+  /**
+   * Parse Term.
+   *
+   * <pre>{@code
+   * Syntax:
+   *  (  '(' Regex ')'              # Parenthesis expression
+   *   | Character class            # Like [abc-f]
+   *   | '.'                        # Any character
+   *   | Character or escape mate   # \w \n... or single character like 'a'
+   *  ) Quantifier
+   * }</pre>
+   */
   private RegularExpression parseTerm() {
     RegularExpression regex = null;
     switch (ch) {
       case '(':
         {
           advance();
-          regex = parse();
-          match(')', "Missing ')'.");
+          regex = parseRegex();
+          match(')', "Parenthesis expression missing closing ')'.");
           break;
         }
 
@@ -172,7 +190,6 @@ public class RegexParser implements Pass<String, RTreeWithTable> {
         {
           advance();
           regex = parseCharClass();
-          match(']', "Missing ']'.");
           break;
         }
 
@@ -183,10 +200,21 @@ public class RegexParser implements Pass<String, RTreeWithTable> {
           break;
         }
 
-      case '\\':
+      case ')':
         {
-          advance();
-          regex = parseEscape(); // \w, \s, \d...
+          error("Unmacthed parenthesis.");
+          break;
+        }
+
+      case '*', '+', '?':
+        {
+          error("Invalid target for quantifier '%s'.", ch);
+          break;
+        }
+
+      case '|':
+        {
+          error("Unexpecting the character '|'.");
           break;
         }
 
@@ -198,16 +226,71 @@ public class RegexParser implements Pass<String, RTreeWithTable> {
 
       default:
         {
-          regex = parseSingleChar();
+          regex = parseCharacterOrMetaEscape();
         }
     }
-    return parseSuffix(regex);
+    return parseQuantifier(regex);
   }
 
-  private RegularExpression parseEscape() {
-    char esch = EOF;
-    RegularExpression regex = null;
-    switch (ch) {
+  /**
+   * Parse Character Class.
+   *
+   * <pre>{@code
+   * Syntax: '[' CharRange* ']'
+   * }</pre>
+   */
+  private RCharRangeList parseCharClass() {
+    List<CharacterRange> ranges = new ArrayList<>();
+    while (this.ch != ']' && this.ch != EOF) {
+      var termExpr = parseCharRange();
+      ranges.addAll(termExpr.toCharRangeList());
+    }
+    match(']', "Character class missing closing bracket.");
+    return new RCharRangeList(ranges);
+  }
+
+  /** Attempt to parse a charcater range like {@code 'a-z', '0-9'}. */
+  private RegularExpression.TermExpr parseCharRange() {
+    var left = parseCharacterOrMetaEscape();
+    // Support syntax '[\w-a]'
+    if (!checkIsChar(left) || !got('-')) {
+      return left;
+    }
+    char start = ((RSingleCharacter) left).getChar();
+    // Support syntax '[a-]'
+    if (this.ch == ']') {
+      return newCharList(start, '-');
+    }
+    var right = parseCharacterOrMetaEscape();
+    // Support syntax '[a-\w]'
+    if (!checkIsChar(right)) {
+      return new RCharRangeList(left, newCharExpr('-'), right);
+    }
+    char end = ((RSingleCharacter) right).getChar();
+    if (end < start) {
+      error("Range out of order in character class.");
+    }
+    return newCharRange(start, end);
+  }
+
+  private boolean checkIsChar(RegularExpression expr) {
+    return expr instanceof RSingleCharacter;
+  }
+
+  /** Parse a character or a meta escape character. */
+  private RegularExpression.TermExpr parseCharacterOrMetaEscape() {
+    if (got('\\')) {
+      return parseMetaEscape();
+    }
+    char ch = this.ch;
+    advance();
+    return newCharExpr(ch);
+  }
+
+  /** Parse meta escape. */
+  private RegularExpression.TermExpr parseMetaEscape() {
+    RegularExpression.TermExpr regex;
+    switch (this.ch) {
       case 'w':
         regex = newCharRangeList('a', 'z', 'A', 'Z', '0', '9', '_', '_');
         break;
@@ -217,79 +300,37 @@ public class RegexParser implements Pass<String, RTreeWithTable> {
       case 'd':
         regex = newCharRange('0', '9');
         break;
-
-      case 'n':
-        esch = '\n';
-        break;
-      case 'r':
-        esch = '\r';
-        break;
-      case 'f':
-        esch = '\f';
-        break;
-      case 't':
-        esch = '\t';
-        break;
-      case 'b':
-        esch = '\b';
-        break;
-
-      case '\\':
-      case '.':
-      case '(':
-      case ')':
-      case '[':
-      case ']':
-      case '*':
-      case '+':
-      case '?':
-      case '|':
-        esch = ch;
-        break;
-
       default:
-        error("Illegal escape character '" + ch + "'.");
+        return newCharExpr(parseMetaEscapeExceptSet());
     }
-    if (esch != EOF) {
-      this.tableBuilder.addChar(esch);
-      regex = new RSingleCharacter(esch);
-    }
-    advance();
+    advance(); // Consume 'w' or 's' or 'd'
     return regex;
   }
 
-  private RegularExpression parseCharClass() {
-    List<RegularExpression> choiceList = new ArrayList<>();
-    while (this.ch != ']' && this.ch != EOF) {
-      char from = this.ch;
-      advance();
-      if (this.ch != '-') {
-        this.tableBuilder.addChar(from);
-        choiceList.add(new RSingleCharacter(from));
-        continue;
-      }
-      advance();
-      if (this.ch == ']' || this.ch == EOF) {
-        error("Illegal char class.");
-      }
-      choiceList.add(newCharRange(from, this.ch));
+  /** Parse meta escape except set like '\w', '\d'... */
+  private char parseMetaEscapeExceptSet() {
+    var escapeCh =
+        switch (this.ch) {
+          case 'n' -> '\n';
+          case 'r' -> '\r';
+          case 'f' -> '\f';
+          case 't' -> '\t';
+          case 'b' -> '\b';
+          case '\\', '.', '(', ')', '[', ']', '*', '+', '?', '|' -> ch;
+          default -> EOF;
+        };
+
+    if (escapeCh == EOF) {
+      error("Illegal escape character '" + ch + "'.");
+    } else {
       advance();
     }
-    return new RChoice(choiceList);
+    return escapeCh;
   }
 
-  private RegularExpression parseSingleChar() {
-    if (isMetaChar(ch)) {
-      error("Unexpecting the meta character '%s'.", ch);
-    }
-    char ch = this.ch;
-    this.tableBuilder.addChar(ch);
-    advance();
-    return new RSingleCharacter(ch);
-  }
-
-  private RegularExpression parseSuffix(RegularExpression regex) {
-    switch (ch) {
+  /** Parse Quantifier. */
+  private RegularExpression parseQuantifier(RegularExpression regex) {
+    switch (this.ch) {
       case '*':
         advance();
         return new RZeroOrMore(regex);

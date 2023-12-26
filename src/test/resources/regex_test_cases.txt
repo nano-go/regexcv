@@ -91,10 +91,49 @@ PATTERN: /[a-j1-7][2-5A-J]/
 MATCHES: "c4", "jJ", "7J", "2D", "24", "6E", "aJ"
 UNMATCH: "", "c6", "8J", "8K", "aj", "AJ", "76"
 
+PATTERN: /[a-]/
+MATCHES: "a", "-" 
+UNMATCH: "", "b", "cd", "a-"
+
+PATTERN: /[--a]+/
+MATCHES: "-a", ":;@?_-/a" 
+UNMATCH: "", "b", "(", ")", "*", "&", "%", "$", "#"
+
+PATTERN: /[&--]+/
+MATCHES: "-&", "'-()*&" 
+UNMATCH: "", "_", ":", ";", "?", "/", "%", "$"
+
+PATTERN: /[--]/
+MATCHES: "-"
+UNMATCH: "", "a"
+
+PATTERN: /[\w-\s]+/, /[\w--\s]+/, /[\w---\s]+/, /[\w----\s]+/, /[-\w-\s-]+/
+MATCHES: "_abcdZhAB---_0539\n \r\f"
+UNMATCH: "", "abcd_-$", "_&()"
+
+PATTERN: /[\w-&]+/, /[-\w&]+/, /[--\w&]+/, /[-\w&-]+/
+MATCHES: "_abcdefgABCZGHK-O&P0123456789&-"
+UNMATCH: "", "_abcd%", "*", "(", ")"
+
+PATTERN: /[\n-z]+/
+MATCHES: "()_*&%$#0123456789abcdefghijklmnopqrstuvwxyz\n"
+UNMATCH: "你好"
+
+PATTERN: /[\n-\r]/
+MATCHES: "\n", "\r"
+UNMATCH: "", "a", "z"
+
+PATTERN: /[\n\r\f\t\b\[\]\.\(\)\*\+\?\|\\]+/
+MATCHES: "\n\r\f\t\b[].()*+?|\"
+UNMATCH: ""
+
+PATTERN: /[\w\s]+/
+MATCHES: "\t\r\n\f AZah_", " String_\r\fG", "\nHello World_"
+UNMATCH: "", "abc_\f(", "  AbH$l " 
+
 PATTERN: /[.|()+*?]/
 MATCHES: ".", "|", "+", "*", "?", "(", ")"
 UNMATCH: "", "a", "$"
-
 
 
 # Meta Escape
