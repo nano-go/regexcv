@@ -15,7 +15,10 @@
  */
 package com.nano.regexcv.syntax.tree;
 
-public class RSingleCharacter extends RegularExpression {
+import com.nano.regexcv.util.CharacterRange;
+import java.util.List;
+
+public class RSingleCharacter extends RegularExpression.TermExpr {
 
   private char ch;
 
@@ -23,12 +26,17 @@ public class RSingleCharacter extends RegularExpression {
     this.ch = ch;
   }
 
+  public char getChar() {
+    return ch;
+  }
+
   @Override
   public <Out> Out accept(RTreeVisitor<Out> visitor) {
     return visitor.visit(this);
   }
 
-  public char getChar() {
-    return ch;
+  @Override
+  public List<CharacterRange> toCharRangeList() {
+    return List.of(new CharacterRange(ch, ch));
   }
 }

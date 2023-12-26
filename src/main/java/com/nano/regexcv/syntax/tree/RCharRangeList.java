@@ -16,13 +16,30 @@
 package com.nano.regexcv.syntax.tree;
 
 import com.nano.regexcv.util.CharacterRange;
+import java.util.Arrays;
+import java.util.List;
 
-public class RCharRangeList extends RegularExpression {
+public class RCharRangeList extends RegularExpression.TermExpr {
 
   private CharacterRange[] charRanges;
 
+  public RCharRangeList(RegularExpression.TermExpr... termExprs) {
+    this(
+        Arrays.stream(termExprs)
+            .flatMap(term -> term.toCharRangeList().stream())
+            .toArray(CharacterRange[]::new));
+  }
+
+  public RCharRangeList(List<CharacterRange> list) {
+    this(list.toArray(CharacterRange[]::new));
+  }
+
   public RCharRangeList(CharacterRange[] charRanges) {
     this.charRanges = charRanges;
+  }
+
+  public CharacterRange[] getCharacterRanges() {
+    return this.charRanges;
   }
 
   @Override
@@ -30,7 +47,8 @@ public class RCharRangeList extends RegularExpression {
     return visitor.visit(this);
   }
 
-  public CharacterRange[] getCharacterRanges() {
-    return this.charRanges;
+  @Override
+  public List<CharacterRange> toCharRangeList() {
+    return List.of(charRanges);
   }
 }

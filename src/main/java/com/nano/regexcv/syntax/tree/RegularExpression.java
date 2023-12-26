@@ -15,7 +15,31 @@
  */
 package com.nano.regexcv.syntax.tree;
 
+import com.nano.regexcv.util.CharacterRange;
+import java.util.List;
+
 public abstract class RegularExpression {
 
   public abstract <Out> Out accept(RTreeVisitor<Out> visitor);
+
+  /**
+   * A class that extends {@code TermExpr} means the class is a leaf node in a regular expression
+   * tree.
+   */
+  public abstract static class TermExpr extends RegularExpression {
+
+    /**
+     * A term expr can be treated as one or more chatacter ranges.
+     *
+     * <p>For Example:
+     *
+     * <ul>
+     *   <li>A single character 's' will be treated as a range {@code s-s}
+     *   <li>A character list 'a,h,d' will be treated as a range list {@code [a-a, h-h, d-d]}.
+     * </ul>
+     *
+     * <p>This method is useful for parsing chatacter classes like '[\w\da-z]'.
+     */
+    public abstract List<CharacterRange> toCharRangeList();
+  }
 }
