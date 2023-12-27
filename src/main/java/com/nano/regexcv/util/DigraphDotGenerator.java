@@ -33,7 +33,7 @@ public class DigraphDotGenerator implements Pass<Digraph, String> {
 
   @Override
   public String accept(Digraph digraph) {
-    code = new GraphvizDotBuilder("digraph", digraph.getName());
+    code = new GraphvizDotBuilder("digraph", Display.escapingString(digraph.getName()));
     generateCode(digraph.getStart());
     return code.build();
   }
@@ -48,7 +48,7 @@ public class DigraphDotGenerator implements Pass<Digraph, String> {
       Node fromNode = queue.poll();
       String name = marker.get(fromNode);
       code.addNodeDeclr(name, fromNode.isFinalState());
-      for (Map.Entry<Acception, HashSet<Node>> edges : fromNode.getAllEdges()) {
+      for (Map.Entry<Label, HashSet<Node>> edges : fromNode.getAllEdges()) {
         String label = edges.getKey().toString();
         for (Node n : edges.getValue()) {
           String toName = marker.get(n);

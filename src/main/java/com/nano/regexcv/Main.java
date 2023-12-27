@@ -27,6 +27,7 @@ import com.nano.regexcv.syntax.RegexParser;
 import com.nano.regexcv.table.CharacterSetCollector;
 import com.nano.regexcv.util.Digraph;
 import com.nano.regexcv.util.DigraphDotGenerator;
+import com.nano.regexcv.util.MergingDigraphEdges;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -105,25 +106,19 @@ public class Main {
   private static void run(CommandLine cl) {
     var regex = cl.getArgs()[0];
     var pass = combinePasses(cl);
-    var digraph = pass.accept(regex);
-    // TODO: Use 'Pass' to impl the 'reduceEdges' function.
     if (cl.hasOption("r")) {
-      digraph.reduceEdges();
+      pass = pass.next(new MergingDigraphEdges());
     }
-    System.out.println(new DigraphDotGenerator().accept(digraph));
-  }
-
-  private static Pass<String, Digraph> combinePasses(CommandLine cl) {
-    Pass<String, Nfa> pass;
-
     try {
-      pass = new RegexParser().next(new CharacterSetCollector()).next(new RExpTree2NfaPass());
+      System.out.println(pass.next(new DigraphDotGenerator()).accept(regex));
     } catch (ParserException e) {
       System.err.println(e.getMessage());
       System.exit(8);
-      return null;
     }
+  }
 
+  private static Pass<String, Digraph> combinePasses(CommandLine cl) {
+    var pass = new RegexParser().next(new CharacterSetCollector()).next(new RExpTree2NfaPass());
     if (cl.hasOption('D')) {
       return getDfaPass(pass, cl);
     } else {
