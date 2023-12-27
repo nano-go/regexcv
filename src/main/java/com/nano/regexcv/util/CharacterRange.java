@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 
-public class CharacterRange implements Comparable<CharacterRange>, Digraph.Acception {
+public class CharacterRange implements Comparable<CharacterRange> {
 
   public static final CharacterRange EPSILON = new CharacterRange('ε', 'ε');
 
@@ -27,6 +27,62 @@ public class CharacterRange implements Comparable<CharacterRange>, Digraph.Accep
   public static final CharacterRange RANGE_A_Z = new CharacterRange('A', 'Z');
   public static final CharacterRange RANGE_0_9 = new CharacterRange('0', '9');
   public static final CharacterRange RANGE_ANY = new CharacterRange((char) 0, Character.MAX_VALUE);
+
+  public static CharacterRange of(char from, char to) {
+    return new CharacterRange(from, to);
+  }
+
+  public static CharacterRange of(char ch) {
+    return new CharacterRange(ch, ch);
+  }
+
+  /**
+   * Parses a string like character class in regex.
+   *
+   * <p>For Example:
+   *
+   * <pre>{@code
+   * Input: "a-z0-9", Output: [(a, z), (0, 9)]
+   * Input: "a-z52", Output: [(a, z), (5, 5), (2, 2)]
+   * Input: "a\-b", Output: [(a, a), (-, -), (b, b)]
+   * Input: "a-", Output: [(a, a), (-, -)]
+   * }</pre>
+   *
+   * The start character of a range must be greater than or equal to the end character.
+   */
+  public static CharacterRange[] parse(String ranges) {
+    var result = new LinkedList<CharacterRange>();
+    var chars = ranges.toCharArray();
+    var len = ranges.length();
+    var i = 0;
+    while (i < len) {
+      char start = chars[i];
+      if (start == '\\') {
+        if (i == len - 1) {
+          throw new IllegalArgumentException();
+        }
+        var next = chars[++i];
+        if (next != '\\' || next != '-') {
+          throw new IllegalArgumentException();
+        }
+        start = next;
+      }
+
+      if (i + 2 >= len || chars[i + 1] != '-') {
+        i++;
+        result.add(new CharacterRange(start, start));
+        continue;
+      }
+
+      char end = chars[i + 2];
+      if (start > end) {
+        throw new IllegalArgumentException();
+      }
+      result.add(new CharacterRange(start, end));
+      i += 3;
+    }
+    return result.toArray(CharacterRange[]::new);
+  }
 
   public static int hashCode(char from, char to) {
     return from * 31 + to;
