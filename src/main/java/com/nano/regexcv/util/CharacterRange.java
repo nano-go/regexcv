@@ -154,29 +154,6 @@ public class CharacterRange implements Comparable<CharacterRange> {
     return result.toArray(CharacterRange[]::new);
   }
 
-  protected static String charToString(char ch) {
-    switch (ch) {
-      case '\n':
-        return "\\\\n";
-      case '\r':
-        return "\\\\r";
-      case '\f':
-        return "\\\\f";
-      case '\b':
-        return "\\\\b";
-      case '\t':
-        return "\\\\t";
-      case '|':
-        return "\\\\|";
-      case ' ':
-        return "space";
-    }
-    if (!(ch < 127 && ch >= 0x21) && (ch == 0 || !Character.isUnicodeIdentifierPart(ch))) {
-      return "0x" + Integer.toHexString(ch);
-    }
-    return String.valueOf(ch);
-  }
-
   public final char from;
   public final char to;
 
@@ -227,9 +204,9 @@ public class CharacterRange implements Comparable<CharacterRange> {
   public String toString() {
     String label;
     if (from == to) {
-      label = charToString(from);
+      label = Display.escapingChar(from);
     } else {
-      label = String.format("%s-%s", charToString(from), charToString(to));
+      label = String.format("%s-%s", Display.escapingChar(from), Display.escapingChar(to));
     }
     return label;
   }
