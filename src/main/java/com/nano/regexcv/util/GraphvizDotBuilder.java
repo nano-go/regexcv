@@ -29,7 +29,11 @@ public class GraphvizDotBuilder {
     code = new StringBuilder();
     nodeDeclrs = new ArrayList<>();
     edges = new ArrayList<>();
-    code.append(type).append(" ").append(name).append("{\n").append("\trankdir=LR\n\n");
+    code.append(type)
+        .append(" ")
+        .append(escapingName(name))
+        .append("{\n")
+        .append("\trankdir=LR\n\n");
   }
 
   public GraphvizDotBuilder addNodeDeclr(String name) {
@@ -41,7 +45,7 @@ public class GraphvizDotBuilder {
   }
 
   public GraphvizDotBuilder addNodeDeclr(String name, String shape) {
-    nodeDeclrs.add(String.format("%s [shape=%s]", name, shape));
+    nodeDeclrs.add(String.format("%s [shape=%s]", escapingName(name), shape));
     return this;
   }
 
@@ -50,7 +54,10 @@ public class GraphvizDotBuilder {
   }
 
   public GraphvizDotBuilder addEdge(String fromNode, String toNode, String label) {
-    edges.add(String.format("%s -> %s [label=\"%s\"]", fromNode, toNode, label));
+    edges.add(
+        String.format(
+            "%s -> %s [label=\"%s\"]",
+            escapingName(fromNode), escapingName(toNode), escapingName(label)));
     return this;
   }
 
@@ -63,5 +70,22 @@ public class GraphvizDotBuilder {
       code.append("\t").append(edge).append("\n");
     }
     return code.append("}").toString();
+  }
+
+  private String escapingName(String name) {
+    var buf = new StringBuilder();
+    for (char ch : name.toCharArray()) {
+      switch (ch) {
+        case '\n' -> buf.append("\\n");
+        case '\r' -> buf.append("\\r");
+        case '\f' -> buf.append("\\f");
+        case '\b' -> buf.append("\\b");
+        case '\t' -> buf.append("\\t");
+        case '\"' -> buf.append("\\\"");
+        case '\\' -> buf.append("\\\\");
+        default -> buf.append(ch);
+      }
+    }
+    return buf.toString();
   }
 }
