@@ -209,12 +209,6 @@ public class InnerRegexParser {
           break;
         }
 
-      case '|':
-        {
-          error("Unexpecting the character '|'.");
-          break;
-        }
-
       case EOF:
         {
           error("Unexpecting EOF.", ch);
