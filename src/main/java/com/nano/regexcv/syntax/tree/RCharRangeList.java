@@ -16,6 +16,7 @@
 package com.nano.regexcv.syntax.tree;
 
 import com.nano.regexcv.util.CharacterRange;
+import com.nano.regexcv.util.CharacterRanges;
 import java.util.Arrays;
 import java.util.List;
 
@@ -38,9 +39,9 @@ public class RCharRangeList extends RegularExpression.TermExpr {
 
   public RCharRangeList(boolean isNegated, CharacterRange[] charRanges) {
     this.isNegated = isNegated;
-    this.charRanges = CharacterRange.mergeOverlappedRanges(charRanges);
+    this.charRanges = CharacterRanges.mergeOverlappingRanges(charRanges);
     if (isNegated) {
-      this.charRanges = CharacterRange.inversedRanges(this.charRanges);
+      this.charRanges = CharacterRanges.inverseRanges(this.charRanges);
     }
   }
 

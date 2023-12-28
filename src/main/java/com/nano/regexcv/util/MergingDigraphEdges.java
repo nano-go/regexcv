@@ -34,9 +34,9 @@ public class MergingDigraphEdges implements Pass<Digraph, Digraph> {
   public static Tag[] COMMON_TAGS =
       new Tag[] {
         new Tag("any char", CharacterRange.RANGE_ANY),
-        new Tag("\\w", CharacterRange.parse("a-zA-Z0-9_")),
-        new Tag("\\d", CharacterRange.parse("0-9")),
-        new Tag("\\s", CharacterRange.parse(" \t-\n\f-\r")),
+        new Tag("\\w", CharacterRanges.parse("a-zA-Z0-9_")),
+        new Tag("\\d", CharacterRanges.parse("0-9")),
+        new Tag("\\s", CharacterRanges.parse(" \t-\n\f-\r")),
       };
 
   /**
@@ -194,6 +194,7 @@ public class MergingDigraphEdges implements Pass<Digraph, Digraph> {
       // Clear list because the ranges has been merged into a label.
       ranges.clear();
     }
+
     if (!tags.isEmpty() || !ranges.isEmpty()) {
       labels.add(getLabelOfTagsAndRanges(tags, ranges));
     }
@@ -216,7 +217,7 @@ public class MergingDigraphEdges implements Pass<Digraph, Digraph> {
    * the label {@code '^' + inversion} like {@code [^a-z], [^\w]}
    */
   private Optional<Label> tryCombineInversionOfRanges(List<CharacterRange> ranges) {
-    var inversedRanges = CharacterRange.inversedRanges(ranges);
+    var inversedRanges = CharacterRanges.inverseRanges(ranges);
     var inversedLength = sumLength(inversedRanges);
     var length = sumLength(ranges);
     if (length < inversedLength) {

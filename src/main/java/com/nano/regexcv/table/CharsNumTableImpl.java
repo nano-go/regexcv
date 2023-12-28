@@ -16,6 +16,7 @@
 package com.nano.regexcv.table;
 
 import com.nano.regexcv.util.CharacterRange;
+import com.nano.regexcv.util.CharacterRanges;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -86,7 +87,7 @@ public class CharsNumTableImpl implements ICharsNumTable {
   }
 
   private int binarySearch(char ch) {
-    var idx = CharacterRange.binarySearch(this.table, ch);
+    var idx = CharacterRanges.binarySearch(this.table, ch);
     if (idx == -1) {
       return ICharsNumTable.INVALID_CHAR_NUM;
     }
