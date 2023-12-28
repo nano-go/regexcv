@@ -214,9 +214,30 @@ PATTERN: /\s+/, /( |\n|\f|\t|\r)+/
 MATCHES: "    ", "\r\n\f\t "
 UNMATCH: "", " abc  ", " \r\ff", " \b"
 
+PATTERN: /\D+/, /[^0-9]+/
+MATCHES: "abc", "foo", "bar"
+UNMATCH: "", "0", "abc123", "foo56", "bar456789"
+
+PATTERN: /\W+/, /[^a-zA-Z0-9_]+/
+MATCHES: "()!:;'<>[]"
+UNMATCH: "", "_", "a", "A", "5", "z", "Z", "9", "0", "(*)9"
+
+PATTERN: /\S+/, /[^ \n\r\f\t]+/
+MATCHES: "abcd_%907-@"
+UNMATCH: "", "\n", "\r", "\f", "\t", " ", "abc\t", "hello world"
+
 PATTERN: /.+/
 MATCHES: "Mod  &*", "foo  ", " HHH\n\r", "\bHeLLo", "你好"
 UNMATCH: ""
+
+PATTERN: /\+\*\?\[\]\(\)\|\\/
+MATCHES: "+*?[]()|\\"
+UNMATCH: "", "+?"
+
+PATTERN: /\+|\*|\?|\[|\]|\(|\||\)|\\/
+MATCHES: "+", "*", "?", "[", "]", "(", ")", "|", "\\"
+UNMATCH: "", "++", "+*"
+
 
 
 # Complex Regex
@@ -237,15 +258,6 @@ PATTERN: /(([a-p]+bd)?([o-tsyz]|(a[j-s]))|(a[c-p][h-z]*[0-4]*))+/
 MATCHES: "ebdajacy2", "ap", "apijk222", "bbdak", "s", "syzac4", "opopap", "afl", "afz4"
 UNMATCH: "", "opbaj", "opopbd0", "afz4b", "bbd"
 
-
-# Escape Characters
-PATTERN: /\+\*\?\[\]\(\)\|\\/
-MATCHES: "+*?[]()|\\"
-UNMATCH: "", "+?"
-
-PATTERN: /\+|\*|\?|\[|\]|\(|\||\)|\\/
-MATCHES: "+", "*", "?", "[", "]", "(", ")", "|", "\\"
-UNMATCH: "", "++", "+*"
 
 # Identifier
 PATTERN: /[a-zA-Z_$][a-zA-Z0-9_$]*/, /[a-zA-Z_$](\w|$)*/

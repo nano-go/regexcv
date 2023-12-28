@@ -17,6 +17,7 @@ package com.nano.regexcv.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +44,11 @@ public class CharacterRanges {
     var chars = ranges.toCharArray();
     var len = ranges.length();
     var i = 0;
+    boolean isNegated = false;
+    if (len != 0 && chars[0] == '^') {
+      isNegated = true;
+      i++;
+    }
     while (i < len) {
       char start = chars[i];
       if (start == '\\') {
@@ -68,6 +74,10 @@ public class CharacterRanges {
       }
       result.add(new CharacterRange(start, end));
       i += 3;
+    }
+    if (isNegated) {
+      Collections.sort(result);
+      result = inverseRanges(result);
     }
     return result.toArray(CharacterRange[]::new);
   }

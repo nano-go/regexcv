@@ -27,12 +27,20 @@ import com.nano.regexcv.syntax.tree.RSingleCharacter;
 import com.nano.regexcv.syntax.tree.RZeroOrMore;
 import com.nano.regexcv.syntax.tree.RegularExpression;
 import com.nano.regexcv.util.CharacterRange;
+import com.nano.regexcv.util.CharacterRanges;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 public class InnerRegexParser {
+
+  private static final CharacterRange[] WORD_RANGES = CharacterRanges.parse("a-zA-Z0-9_");
+  private static final CharacterRange[] NON_WORD_RANGES = CharacterRanges.parse("^a-zA-Z0-9_");
+  private static final CharacterRange[] DIGIT_RANGES = CharacterRanges.parse("0-9");
+  private static final CharacterRange[] NON_DIGIT_RANGES = CharacterRanges.parse("^0-9");
+  private static final CharacterRange[] SPACE_RANGES = CharacterRanges.parse(" \n\r\f\t");
+  private static final CharacterRange[] NON_SPACE_RANGES = CharacterRanges.parse("^ \n\r\f\t");
 
   private static final char EOF = (char) -1;
 
@@ -84,12 +92,8 @@ public class InnerRegexParser {
 
   // Factory Methods
 
-  private RCharRangeList newCharRangeList(char... chs) {
-    CharacterRange[] charRanges = new CharacterRange[chs.length / 2];
-    for (int i = 0; i < chs.length; i += 2) {
-      charRanges[i / 2] = new CharacterRange(chs[i], chs[i + 1]);
-    }
-    return new RCharRangeList(false, charRanges);
+  private RCharRangeList newCharRangeList(CharacterRange... ranges) {
+    return new RCharRangeList(false, ranges);
   }
 
   private RCharList newCharList(char... chs) {
@@ -193,7 +197,7 @@ public class InnerRegexParser {
       case '.':
         {
           advance();
-          regex = newCharRange((char) 0, Character.MAX_VALUE);
+          regex = newCharRange(Character.MIN_VALUE, Character.MAX_VALUE);
           break;
         }
 
@@ -283,19 +287,17 @@ public class InnerRegexParser {
   private RegularExpression.TermExpr parseMetaEscape() {
     RegularExpression.TermExpr regex;
     switch (this.ch) {
-      case 'w':
-        regex = newCharRangeList('a', 'z', 'A', 'Z', '0', '9', '_', '_');
-        break;
-      case 's':
-        regex = newCharList(' ', '\t', '\r', '\n', '\f');
-        break;
-      case 'd':
-        regex = newCharRange('0', '9');
-        break;
-      default:
+      case 'w' -> regex = newCharRangeList(WORD_RANGES);
+      case 'W' -> regex = newCharRangeList(NON_WORD_RANGES);
+      case 's' -> regex = newCharRangeList(SPACE_RANGES);
+      case 'S' -> regex = newCharRangeList(NON_SPACE_RANGES);
+      case 'd' -> regex = newCharRangeList(DIGIT_RANGES);
+      case 'D' -> regex = newCharRangeList(NON_DIGIT_RANGES);
+      default -> {
         return newCharExpr(parseMetaEscapeExceptSet());
+      }
     }
-    advance(); // Consume 'w' or 's' or 'd'
+    advance();
     return regex;
   }
 
