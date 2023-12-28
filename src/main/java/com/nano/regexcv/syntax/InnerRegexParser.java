@@ -142,12 +142,15 @@ public class InnerRegexParser {
    * }</pre>
    */
   private RegularExpression parseAlternation() {
-    RegularExpression left = parseLeftOfAlternation();
+    var list = new ArrayList<RegularExpression>();
+    list.add(parseLeftOfAlternation());
     while (got('|')) {
-      var right = parseRightOfAlternation();
-      left = new RAlternation(List.of(left, right));
+      list.add(parseRightOfAlternation());
     }
-    return left;
+    if (list.size() == 1) {
+      return list.get(0);
+    }
+    return new RAlternation(list);
   }
 
   private RegularExpression parseLeftOfAlternation() {
