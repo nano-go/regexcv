@@ -172,6 +172,45 @@ public class CharacterRanges {
   }
 
   /**
+   * Merge overlapping or continuous character ranges.
+   *
+   * @param ranges The range array is in any order.
+   * @return The array with only mutually exclusive ranges.
+   */
+  public static CharacterRange[] mergeContinuousRanges(CharacterRange... ranges) {
+    return mergeContinuousRanges(false, ranges);
+  }
+
+  /**
+   * Merge overlapping or continuous character ranges.
+   *
+   * @param inAscOrder Is the range array in ascending order?
+   * @return The array with only mutually exclusive ranges.
+   */
+  public static CharacterRange[] mergeContinuousRanges(
+      boolean inAscOrder, CharacterRange... ranges) {
+    if (ranges.length == 0) {
+      return new CharacterRange[0];
+    }
+    if (!inAscOrder) {
+      Arrays.sort(ranges);
+    }
+    var result = new ArrayList<CharacterRange>(ranges.length);
+    var left = ranges[0].from;
+    var right = ranges[0].to;
+    for (int i = 0; i < ranges.length; i++) {
+      var range = ranges[i];
+      if (range.from != 0 && (range.from - 1) > right) {
+        result.add(new CharacterRange(left, right));
+        left = range.from;
+      }
+      right = right > range.to ? right : range.to;
+    }
+    result.add(new CharacterRange(left, right));
+    return result.toArray(CharacterRange[]::new);
+  }
+
+  /**
    * Inverse the specified ranges.
    *
    * <p>For example, given an array {@code [a-z0-9]}, and outputs an array that contains any

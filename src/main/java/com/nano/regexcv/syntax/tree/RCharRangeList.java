@@ -39,7 +39,7 @@ public class RCharRangeList extends RegularExpression.TermExpr {
 
   public RCharRangeList(boolean isNegated, CharacterRange[] charRanges) {
     this.isNegated = isNegated;
-    this.charRanges = CharacterRanges.mergeOverlappingRanges(charRanges);
+    this.charRanges = CharacterRanges.mergeContinuousRanges(charRanges);
     if (isNegated) {
       this.charRanges = CharacterRanges.inverseRanges(this.charRanges);
     }
