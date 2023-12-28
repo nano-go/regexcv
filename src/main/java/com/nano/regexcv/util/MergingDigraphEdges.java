@@ -20,9 +20,13 @@ import com.nano.regexcv.util.Digraph.Label;
 import com.nano.regexcv.util.Digraph.Node;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /** This is a useful pass that can merge edges of a digraph. */
 public class MergingDigraphEdges implements Pass<Digraph, Digraph> {
@@ -32,16 +36,16 @@ public class MergingDigraphEdges implements Pass<Digraph, Digraph> {
         new Tag("any char", CharacterRange.RANGE_ANY),
         new Tag("\\w", CharacterRange.parse("a-zA-Z0-9_")),
         new Tag("\\d", CharacterRange.parse("0-9")),
-        new Tag("\\s", CharacterRange.parse(" \n\f\t\b\r")),
+        new Tag("\\s", CharacterRange.parse(" \t-\n\f-\r")),
       };
 
   /**
-   * This can merge specified ranges into a tag.
+   * Some specified ranges can be represented by the tag.
    *
    * <p>For Example:
    *
    * <pre>{@code
-   * [a-zA-Z0-9_] can be merged as a '\w' tag.
+   * [a-zA-Z0-9_] can be represented by the '\w' tag.
    * }</pre>
    */
   public static class Tag {
@@ -51,6 +55,43 @@ public class MergingDigraphEdges implements Pass<Digraph, Digraph> {
     public Tag(String name, CharacterRange... matchedRanges) {
       this.name = name;
       this.matchedRanges = new HashSet<>(Arrays.asList(matchedRanges));
+    }
+
+    public String getName() {
+      return name;
+    }
+
+    public HashSet<CharacterRange> getMatchedRanges() {
+      return matchedRanges;
+    }
+
+    public Label toLabel() {
+      return new Label(name, matchedRanges);
+    }
+
+    @Override
+    public String toString() {
+      return name;
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(this.name, this.matchedRanges);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (this == obj) return true;
+      if (obj == null) return false;
+      if (getClass() != obj.getClass()) return false;
+      Tag other = (Tag) obj;
+      if (name == null) {
+        if (other.name != null) return false;
+      } else if (!name.equals(other.name)) return false;
+      if (matchedRanges == null) {
+        if (other.matchedRanges != null) return false;
+      } else if (!matchedRanges.equals(other.matchedRanges)) return false;
+      return true;
     }
   }
 
@@ -67,59 +108,64 @@ public class MergingDigraphEdges implements Pass<Digraph, Digraph> {
   @Override
   public Digraph accept(Digraph digraph) {
     var stack = new LinkedList<Node>();
-    var marker = new HashSet<>();
+    var marked = new HashSet<>();
     stack.push(digraph.getStart());
+    marked.add(digraph.getStart());
     while (!stack.isEmpty()) {
       var node = stack.pop();
-      marker.add(node);
-      mergeContinuousEdges(node);
-      mergeEdgesIntoTags(node);
+      mergeEdges(node);
       node.edges.values().stream()
           .flatMap(e -> e.stream())
-          .filter(marker::add)
+          .filter(marked::add)
           .forEach(stack::push);
     }
     return digraph;
   }
 
   /**
-   * Merge continuous edges.
-   *
-   * <p>If a state can accept {@code [a-d], [c-g], h, [i-z]} to another state, then merge theme into
-   * an interval {@code [a-z]}.
+   * Merges continuous edges and tries to combine specific edges to labels with corresponding tag
+   * name.
    */
-  private void mergeContinuousEdges(Node node) {
-    var map = mapNodeToRanges(node);
-    node.edges.clear();
+  private void mergeEdges(Node node) {
+    var map = mapSuccessorToRanges(node);
+    node.edges.clear(); // rebuild edges
     for (var entry : map.entrySet()) {
-      var toNode = entry.getKey();
-      var rangesIter = sortRanges(entry.getValue());
-      while (rangesIter.hasNext()) {
-        var range = mergeContinuousRanges(rangesIter);
-        node.addEdge(new Label(range), toNode);
+      var successor = entry.getKey();
+      var distinctRanges = getDistinctRanges(entry.getValue());
+      var labels = combineRangesToLabels(distinctRanges);
+      for (var label : labels) {
+        node.addEdge(label, successor);
       }
     }
   }
 
-  private PeekingIterator<CharacterRange> sortRanges(HashSet<CharacterRange> value) {
-    return new PeekingIterator<>(value.stream().sorted().iterator());
-  }
-
-  private HashMap<Node, HashSet<CharacterRange>> mapNodeToRanges(Node node) {
+  /**
+   * If a node can accept the ranges 'R' to be transferred to a successor node, then maps the
+   * successor node to the ranges 'R'.
+   */
+  private HashMap<Node, HashSet<CharacterRange>> mapSuccessorToRanges(Node node) {
     var map = new HashMap<Node, HashSet<CharacterRange>>();
     for (var entry : node.getAllEdges()) {
       var label = entry.getKey();
-      var toNodes = entry.getValue();
-      for (var toNode : toNodes) {
-        var set = map.get(toNode);
-        if (set == null) {
-          set = new HashSet<>();
-          map.put(toNode, set);
+      var successors = entry.getValue();
+      for (var successorNode : successors) {
+        var set = map.computeIfAbsent(successorNode, key -> new HashSet<>());
+        for (var range : label.ranges) {
+          set.add(range);
         }
-        Arrays.stream(label.ranges).forEach(set::add);
       }
     }
     return map;
+  }
+
+  private ArrayList<CharacterRange> getDistinctRanges(Collection<CharacterRange> ranges) {
+    var distinctRanges = new ArrayList<CharacterRange>();
+    var iter = new PeekingIterator<>(ranges.stream().sorted().iterator());
+    while (iter.hasNext()) {
+      var range = mergeContinuousRanges(iter);
+      distinctRanges.add(range);
+    }
+    return distinctRanges;
   }
 
   private CharacterRange mergeContinuousRanges(PeekingIterator<CharacterRange> iter) {
@@ -136,32 +182,82 @@ public class MergingDigraphEdges implements Pass<Digraph, Digraph> {
     return new CharacterRange(first.from, right);
   }
 
-  private void mergeEdgesIntoTags(Node node) {
-    var map = mapNodeToRanges(node);
-    node.edges.clear();
-    for (var entry : map.entrySet()) {
-      var toNode = entry.getKey();
-      var ranges = entry.getValue();
-      var tags = matchesTags(ranges);
-      for (var tag : tags) {
-        var label = new Label(tag.name, tag.matchedRanges.toArray(CharacterRange[]::new));
-        node.addEdge(label, node);
-      }
-      if (!ranges.isEmpty()) {
-        var label = new Label(ranges.toArray(CharacterRange[]::new));
-        node.addEdge(label, toNode);
-      }
+  private List<Label> combineRangesToLabels(List<CharacterRange> ranges) {
+    var labels = new ArrayList<Label>();
+
+    // Get matched tags.
+    var tags = matchesTags(ranges);
+    // Try to combine inversion of the rest ranges to a label like '[^a-z]'
+    var label = tryCombineInversionOfRanges(ranges);
+    if (label.isPresent()) {
+      labels.add(label.get());
+      // Clear list because the ranges has been merged into a label.
+      ranges.clear();
     }
+    if (!tags.isEmpty() || !ranges.isEmpty()) {
+      labels.add(getLabelOfTagsAndRanges(tags, ranges));
+    }
+    return labels;
   }
 
-  private Tag[] matchesTags(HashSet<CharacterRange> ranges) {
-    var tags = new ArrayList<>();
+  private List<Tag> matchesTags(List<CharacterRange> ranges) {
+    var tags = new ArrayList<Tag>();
     for (var tag : this.tags) {
       if (ranges.containsAll(tag.matchedRanges)) {
         tags.add(tag);
         ranges.removeAll(tag.matchedRanges);
       }
     }
-    return tags.toArray(Tag[]::new);
+    return tags;
+  }
+
+  /**
+   * If the length of the inversion of the ranges is less than the length of itself, then returns
+   * the label {@code '^' + inversion} like {@code [^a-z], [^\w]}
+   */
+  private Optional<Label> tryCombineInversionOfRanges(List<CharacterRange> ranges) {
+    var inversedRanges = CharacterRange.inversedRanges(ranges);
+    var inversedLength = sumLength(inversedRanges);
+    var length = sumLength(ranges);
+    if (length < inversedLength) {
+      return Optional.empty();
+    }
+    var labelName = getNameOfInversedRanges(inversedRanges);
+    return Optional.of(new Label(labelName, ranges));
+  }
+
+  private int sumLength(Collection<CharacterRange> ranges) {
+    return ranges.stream().mapToInt(range -> range.to - range.from).sum();
+  }
+
+  private String getNameOfInversedRanges(List<CharacterRange> inversedRanges) {
+    var name = new StringBuilder();
+    var tags = matchesTags(inversedRanges);
+    if (!tags.isEmpty()) {
+      name.append("[^");
+      tags.forEach(name::append);
+    }
+    if (!inversedRanges.isEmpty()) {
+      if (name.length() == 0) {
+        name.append("[^");
+      }
+      inversedRanges.forEach(name::append);
+    }
+    name.append("]");
+    return name.toString();
+  }
+
+  /** Returns a label that represents the specified tags and ranges. */
+  private Label getLabelOfTagsAndRanges(List<Tag> tags, List<CharacterRange> ranges) {
+    var name = new StringBuilder();
+    var trim = ranges.size() + tags.size() == 1;
+    name.append(trim ? "" : "[");
+    tags.forEach(name::append);
+    ranges.forEach(name::append);
+    name.append(trim ? "" : "]");
+    for (var tag : tags) {
+      ranges.addAll(tag.matchedRanges);
+    }
+    return new Label(name.toString(), ranges);
   }
 }

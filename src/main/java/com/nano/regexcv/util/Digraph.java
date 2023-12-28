@@ -16,6 +16,7 @@
 package com.nano.regexcv.util;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +29,14 @@ public class Digraph {
   public static final class Label {
     protected String label;
     protected CharacterRange[] ranges;
+
+    public Label(Collection<CharacterRange> ranges) {
+      this(ranges.toArray(CharacterRange[]::new));
+    }
+
+    public Label(String name, Collection<CharacterRange> ranges) {
+      this(name, ranges.toArray(CharacterRange[]::new));
+    }
 
     public Label(CharacterRange... ranges) {
       this.ranges = ranges;
