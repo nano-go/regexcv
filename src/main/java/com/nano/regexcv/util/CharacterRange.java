@@ -17,7 +17,10 @@ package com.nano.regexcv.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 public class CharacterRange implements Comparable<CharacterRange> {
 
@@ -51,7 +54,7 @@ public class CharacterRange implements Comparable<CharacterRange> {
    * The start character of a range must be greater than or equal to the end character.
    */
   public static CharacterRange[] parse(String ranges) {
-    var result = new LinkedList<CharacterRange>();
+    var result = new ArrayList<CharacterRange>();
     var chars = ranges.toCharArray();
     var len = ranges.length();
     var i = 0;
@@ -138,10 +141,26 @@ public class CharacterRange implements Comparable<CharacterRange> {
     return result.toArray(CharacterRange[]::new);
   }
 
-  public static CharacterRange[] inversedRanges(CharacterRange... ranges) {
-    var result = new ArrayList<>(ranges.length + 1);
+  public static ArrayList<CharacterRange> inversedRanges(Collection<CharacterRange> sortedRanges) {
+    var result = new ArrayList<CharacterRange>(sortedRanges.size() + 1);
     var left = Character.MIN_VALUE;
-    for (var range : ranges) {
+    for (var range : sortedRanges) {
+      if (left < range.from) {
+        result.add(new CharacterRange(left, (char) (range.from - 1)));
+      }
+      if (range.to == Character.MAX_VALUE) {
+        return result;
+      }
+      left = (char) (range.to + 1);
+    }
+    result.add(new CharacterRange(left, Character.MAX_VALUE));
+    return result;
+  }
+
+  public static CharacterRange[] inversedRanges(CharacterRange... sortedRanges) {
+    var result = new ArrayList<>(sortedRanges.length + 1);
+    var left = Character.MIN_VALUE;
+    for (var range : sortedRanges) {
       if (left < range.from) {
         result.add(new CharacterRange(left, (char) (range.from - 1)));
       }
@@ -152,6 +171,23 @@ public class CharacterRange implements Comparable<CharacterRange> {
     }
     result.add(new CharacterRange(left, Character.MAX_VALUE));
     return result.toArray(CharacterRange[]::new);
+  }
+
+  public static HashSet<CharacterRange> inversedRanges(Set<CharacterRange> ranges) {
+    var sortedRanges = ranges.stream().sorted().toList();
+    var result = new HashSet<CharacterRange>();
+    var left = Character.MIN_VALUE;
+    for (var range : sortedRanges) {
+      if (left < range.from) {
+        result.add(new CharacterRange(left, (char) (range.from - 1)));
+      }
+      if (range.to == Character.MAX_VALUE) {
+        return result;
+      }
+      left = (char) (range.to + 1);
+    }
+    result.add(new CharacterRange(left, Character.MAX_VALUE));
+    return result;
   }
 
   public final char from;
