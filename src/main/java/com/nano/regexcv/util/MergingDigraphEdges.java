@@ -173,7 +173,7 @@ public class MergingDigraphEdges implements Pass<Digraph, Digraph> {
     var right = first.to;
     while (iter.hasNext()) {
       var range = iter.peek();
-      if (range.from != 0 && (char) (range.from - 1) > right) {
+      if (range.from != 0 && range.from - 1 > right) {
         break;
       }
       iter.next();
