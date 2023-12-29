@@ -128,12 +128,10 @@ public class MergingDigraphEdges implements Pass<Digraph, Digraph> {
    */
   private void mergeEdges(Node node) {
     var map = mapSuccessorToRanges(node);
-    node.edges.clear(); // rebuild edges
     for (var entry : map.entrySet()) {
       var successor = entry.getKey();
       var distinctRanges = getDistinctRanges(entry.getValue());
       if (distinctRanges.isEmpty()) {
-        node.addEpsilonEdge(successor);
         continue;
       }
       var labels = combineRangesToLabels(distinctRanges);
@@ -146,10 +144,14 @@ public class MergingDigraphEdges implements Pass<Digraph, Digraph> {
   /**
    * If a node can accept the ranges 'R' to be transferred to a successor node, then maps the
    * successor node to the ranges 'R'.
+   *
+   * <p>This method will remove edges without epsilon of the node.
    */
   private HashMap<Node, HashSet<CharacterRange>> mapSuccessorToRanges(Node node) {
     var map = new HashMap<Node, HashSet<CharacterRange>>();
-    for (var entry : node.getAllEdges()) {
+    var iter = node.getAllEdges().iterator();
+    while (iter.hasNext()) {
+      var entry = iter.next();
       var label = entry.getKey();
       var successors = entry.getValue();
       for (var successorNode : successors) {
@@ -157,6 +159,9 @@ public class MergingDigraphEdges implements Pass<Digraph, Digraph> {
         for (var range : label.ranges) {
           set.add(range);
         }
+      }
+      if (!label.isEpsilonLabel()) {
+        iter.remove();
       }
     }
     return map;

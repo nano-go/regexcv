@@ -62,6 +62,10 @@ public class Digraph {
       this.label = label;
     }
 
+    public boolean isEpsilonLabel() {
+      return ranges.length == 0;
+    }
+
     @Override
     public String toString() {
       return label;
