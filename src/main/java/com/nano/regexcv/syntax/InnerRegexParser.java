@@ -29,7 +29,6 @@ import com.nano.regexcv.syntax.tree.RegularExpression;
 import com.nano.regexcv.util.CharacterRange;
 import com.nano.regexcv.util.CharacterRanges;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -52,10 +51,6 @@ public class InnerRegexParser {
     this.p = 0;
     this.ch = 0;
     this.chars = regex.toString().toCharArray();
-    if (this.chars.length == 0 || this.chars[chars.length - 1] != EOF) {
-      this.chars = Arrays.copyOf(this.chars, this.chars.length + 1);
-      this.chars[chars.length - 1] = EOF;
-    }
     advance();
   }
 
@@ -64,7 +59,8 @@ public class InnerRegexParser {
   }
 
   private void advance() {
-    if (isEnd()) {
+    if (this.p == this.chars.length) {
+      ch = EOF;
       return;
     }
     ch = chars[p++];
