@@ -118,6 +118,10 @@ public class Digraph {
       nodes.add(toNode);
     }
 
+    public void addEpsilonEdge(Node successor) {
+      this.addEdge(new Label(), successor);
+    }
+
     public Set<Node> getNodes(Label label) {
       return Objects.requireNonNullElse(edges.get(label), Collections.<Node>emptySet());
     }

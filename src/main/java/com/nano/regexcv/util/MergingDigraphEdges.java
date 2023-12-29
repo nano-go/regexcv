@@ -132,6 +132,10 @@ public class MergingDigraphEdges implements Pass<Digraph, Digraph> {
     for (var entry : map.entrySet()) {
       var successor = entry.getKey();
       var distinctRanges = getDistinctRanges(entry.getValue());
+      if (distinctRanges.isEmpty()) {
+        node.addEpsilonEdge(successor);
+        continue;
+      }
       var labels = combineRangesToLabels(distinctRanges);
       for (var label : labels) {
         node.addEdge(label, successor);
