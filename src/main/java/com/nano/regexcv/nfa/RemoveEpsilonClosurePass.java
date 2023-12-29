@@ -24,17 +24,17 @@ public class RemoveEpsilonClosurePass implements Pass<Nfa, Nfa> {
 
   @Override
   public Nfa accept(Nfa nfa) {
-    LinkedList<NfaState> stack = new LinkedList<NfaState>();
-    HashSet<NfaState> marked = new HashSet<>();
+    var stack = new LinkedList<NfaState>();
+    var marked = new HashSet<>();
     stack.add(nfa.start);
+    marked.add(nfa.start);
     while (!stack.isEmpty()) {
-      NfaState node = stack.pop();
-      marked.add(node);
-      removeEpsilonClosure(node, nfa.end);
+      var node = stack.pop();
+      removeEpsilonClosure(node);
       Arrays.stream(node.getTransitions())
           .filter(e -> e != null)
           .flatMap(e -> e.stream())
-          .filter(e -> !marked.contains(e))
+          .filter(marked::add)
           .forEach(stack::push);
     }
     // The end state may not exist after the ε-closure is removed.
@@ -42,34 +42,27 @@ public class RemoveEpsilonClosurePass implements Pass<Nfa, Nfa> {
     return nfa;
   }
 
-  /** Searches all nfa nodes without epsilon which can be reached from the given 'from' node. */
-  private void removeEpsilonClosure(NfaState from, NfaState end) {
-    boolean foundEndNode = false;
-    LinkedList<NfaState> stack = new LinkedList<NfaState>(from.getEpsilonTransitions());
-    HashSet<NfaState> marked = new HashSet<>();
+  private void removeEpsilonClosure(NfaState from) {
+    boolean isFinalState = false;
+    var stack = new LinkedList<NfaState>(from.getEpsilonTransitions());
+    var marked = new HashSet<>(from.getEpsilonTransitions());
     marked.add(from);
 
     while (!stack.isEmpty()) {
-      NfaState node = stack.pop();
-      foundEndNode |= node == end;
-      marked.add(node);
-      for (NfaState nstate : node.getEpsilonTransitions()) {
-        if (!marked.contains(nstate)) {
-          stack.push(nstate);
-        }
-      }
-
-      // If A['ε'] = B, B['a'] = C, we can connect the state A and
-      // the state C with the char 'a'.
-      HashSet<NfaState>[] transitions = node.getTransitions();
+      var node = stack.pop();
+      isFinalState |= node.isFinalState();
+      var transitions = node.getTransitions();
       for (int i = 1; i < transitions.length; i++) {
         if (transitions[i] != null) {
           from.addTransitions(i, transitions[i]);
         }
       }
+      node.getEpsilonTransitions().stream().filter(marked::add).forEach(stack::push);
     }
 
+    if (isFinalState) {
+      from.markFinalState();
+    }
     from.removeEpsilonTransitions();
-    if (foundEndNode) from.markFinalState();
   }
 }
