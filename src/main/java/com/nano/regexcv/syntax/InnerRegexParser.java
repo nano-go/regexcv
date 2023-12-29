@@ -54,7 +54,7 @@ public class InnerRegexParser {
   }
 
   private void error(String format, Object... args) {
-    throw new ParserException("SyntaxError: " + String.format(format, args));
+    throw new RegexSyntaxErrorException("SyntaxError: " + String.format(format, args));
   }
 
   private void advance() {

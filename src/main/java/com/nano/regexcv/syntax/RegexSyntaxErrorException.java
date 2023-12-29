@@ -15,8 +15,8 @@
  */
 package com.nano.regexcv.syntax;
 
-public class ParserException extends RuntimeException {
-  public ParserException(String msg) {
+public class RegexSyntaxErrorException extends RuntimeException {
+  public RegexSyntaxErrorException(String msg) {
     super(msg);
   }
 }

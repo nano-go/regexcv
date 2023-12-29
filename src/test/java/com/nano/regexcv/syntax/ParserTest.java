@@ -32,7 +32,7 @@ public class ParserTest {
     for (String pattern : ERROR_REGEX) {
       try {
         parser.accept(pattern);
-      } catch (ParserException e) {
+      } catch (RegexSyntaxErrorException e) {
         System.out.printf("\"%s\": %s\n", pattern, e.getMessage());
         continue;
       }

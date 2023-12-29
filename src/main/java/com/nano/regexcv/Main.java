@@ -22,8 +22,8 @@ import com.nano.regexcv.nfa.Nfa;
 import com.nano.regexcv.nfa.Nfa2DigraphPass;
 import com.nano.regexcv.nfa.RExpTree2NfaPass;
 import com.nano.regexcv.nfa.RemoveEpsilonClosurePass;
-import com.nano.regexcv.syntax.ParserException;
 import com.nano.regexcv.syntax.RegexParser;
+import com.nano.regexcv.syntax.RegexSyntaxErrorException;
 import com.nano.regexcv.table.CharacterSetCollector;
 import com.nano.regexcv.util.Digraph;
 import com.nano.regexcv.util.DigraphDotGenerator;
@@ -111,7 +111,7 @@ public class Main {
     }
     try {
       System.out.println(pass.next(new DigraphDotGenerator()).accept(regex));
-    } catch (ParserException e) {
+    } catch (RegexSyntaxErrorException e) {
       System.err.println(e.getMessage());
       System.exit(8);
     }
