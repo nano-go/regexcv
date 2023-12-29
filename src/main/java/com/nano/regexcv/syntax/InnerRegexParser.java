@@ -220,7 +220,7 @@ public class InnerRegexParser {
 
       default:
         {
-          regex = parseCharacterOrMetaEscape();
+          regex = parseChar();
         }
     }
     return parseQuantifier(regex);
@@ -246,7 +246,7 @@ public class InnerRegexParser {
 
   /** Attempt to parse a charcater range like {@code 'a-z', '0-9'}. */
   private RegularExpression.TermExpr parseCharRange() {
-    var left = parseCharacterOrMetaEscape();
+    var left = parseChar();
     // Support syntax '[\w-a]'
     if (!checkIsChar(left) || !got('-')) {
       return left;
@@ -256,7 +256,7 @@ public class InnerRegexParser {
     if (this.ch == ']') {
       return newCharList(start, '-');
     }
-    var right = parseCharacterOrMetaEscape();
+    var right = parseChar();
     // Support syntax '[a-\w]'
     if (!checkIsChar(right)) {
       return new RCharRangeList(false, left, newCharExpr('-'), right);
@@ -272,53 +272,39 @@ public class InnerRegexParser {
     return expr instanceof RSingleCharacter;
   }
 
-  /** Parse a character or a meta escape character. */
-  private RegularExpression.TermExpr parseCharacterOrMetaEscape() {
+  /** Parse a escape char or a normal char. */
+  private RegularExpression.TermExpr parseChar() {
     if (got('\\')) {
-      return parseMetaEscape();
+      return parseMetaCharacter();
     }
     char ch = this.ch;
     advance();
     return newCharExpr(ch);
   }
 
-  /** Parse meta escape. */
-  private RegularExpression.TermExpr parseMetaEscape() {
-    RegularExpression.TermExpr regex;
-    switch (this.ch) {
-      case 'w' -> regex = newCharRangeList(WORD_RANGES);
-      case 'W' -> regex = newCharRangeList(NON_WORD_RANGES);
-      case 's' -> regex = newCharRangeList(SPACE_RANGES);
-      case 'S' -> regex = newCharRangeList(NON_SPACE_RANGES);
-      case 'd' -> regex = newCharRangeList(DIGIT_RANGES);
-      case 'D' -> regex = newCharRangeList(NON_DIGIT_RANGES);
-      default -> {
-        return newCharExpr(parseMetaEscapeExceptSet());
-      }
-    }
+  /** Parse meta character. */
+  private RegularExpression.TermExpr parseMetaCharacter() {
+    var regex =
+        switch (this.ch) {
+          case 'w' -> newCharRangeList(WORD_RANGES);
+          case 'W' -> newCharRangeList(NON_WORD_RANGES);
+          case 's' -> newCharRangeList(SPACE_RANGES);
+          case 'S' -> newCharRangeList(NON_SPACE_RANGES);
+          case 'd' -> newCharRangeList(DIGIT_RANGES);
+          case 'D' -> newCharRangeList(NON_DIGIT_RANGES);
+          case 'n' -> newCharExpr('\n');
+          case 'r' -> newCharExpr('\r');
+          case 'f' -> newCharExpr('\f');
+          case 't' -> newCharExpr('\t');
+          case 'b' -> newCharExpr('\b');
+          case '\\', '.', '(', ')', '[', ']', '*', '+', '?', '|' -> newCharExpr(ch);
+          default -> {
+            error("Illegal escape character '" + ch + "'.");
+            yield null;
+          }
+        };
     advance();
     return regex;
-  }
-
-  /** Parse meta escape except set like '\w', '\d'... */
-  private char parseMetaEscapeExceptSet() {
-    var escapeCh =
-        switch (this.ch) {
-          case 'n' -> '\n';
-          case 'r' -> '\r';
-          case 'f' -> '\f';
-          case 't' -> '\t';
-          case 'b' -> '\b';
-          case '\\', '.', '(', ')', '[', ']', '*', '+', '?', '|' -> ch;
-          default -> EOF;
-        };
-
-    if (escapeCh == EOF) {
-      error("Illegal escape character '" + ch + "'.");
-    } else {
-      advance();
-    }
-    return escapeCh;
   }
 
   /** Parse Quantifier. */
