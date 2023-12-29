@@ -33,8 +33,6 @@ public final class Display {
       case '\f' -> "\\f";
       case '\b' -> "\\b";
       case '\t' -> "\\t";
-      case '\"' -> "\\\"";
-      case '\\' -> "\\\\";
       default -> {
         if (!(ch < 127 && ch >= 0x21) && (ch == 0 || !Character.isUnicodeIdentifierPart(ch))) {
           yield "0x" + Integer.toHexString(ch);
