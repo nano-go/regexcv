@@ -16,51 +16,48 @@
 package com.nano.regexcv.nfa;
 
 import com.nano.regexcv.Pass;
-import com.nano.regexcv.table.ICharsNumTable;
-import com.nano.regexcv.util.CharacterRange;
 import com.nano.regexcv.util.Digraph;
+import com.nano.regexcv.util.Digraph.Node;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 
 /** This converts a DFA into a digraph. */
 public class Nfa2DigraphPass implements Pass<Nfa, Digraph> {
 
-  private static CharacterRange getCharRange(ICharsNumTable table, int classNumber) {
-    return classNumber == 0 ? CharacterRange.EPSILON : table.getCharRangeOfNum(classNumber);
-  }
-
   @Override
   public Digraph accept(Nfa nfa) {
-    ICharsNumTable charTable = nfa.getCharsNumTable();
-    LinkedList<NfaState> stack = new LinkedList<>();
-    HashMap<NfaState, Digraph.Node> nodes = new HashMap<>();
+    var table = nfa.getCharsNumTable();
+    var nodeMap = new HashMap<NfaState, Node>();
+    var stack = new LinkedList<NfaState>();
 
-    NfaState start = nfa.getStart();
-    stack.push(start);
-    nodes.put(start, new Digraph.Node(start.isFinalState()));
+    var startState = nfa.getStart();
+    stack.push(startState);
+    nodeMap.put(startState, new Node(startState.isFinalState()));
 
     while (!stack.isEmpty()) {
-      NfaState nstate = stack.pop();
-      Digraph.Node fromNode = nodes.get(nstate);
-      HashSet<NfaState>[] transitions = nstate.getTransitions();
-      for (int classNum = 0; classNum < transitions.length; classNum++) {
-        if (transitions[classNum] == null) {
-          continue;
-        }
-        for (NfaState state : transitions[classNum]) {
-          Digraph.Node toNode = nodes.get(state);
-          if (toNode == null) {
-            toNode = new Digraph.Node(state.isFinalState());
-            nodes.put(state, toNode);
-            stack.push(state);
+      var state = stack.pop();
+      var node = nodeMap.get(state);
+      var transitions = state.getTransitions();
+      for (int num = 0; num < transitions.length; num++) {
+        var successorStateSet = transitions[num];
+        if (successorStateSet == null) continue;
+        for (var successorState : successorStateSet) {
+          var successorNode =
+              nodeMap.computeIfAbsent(
+                  successorState,
+                  key -> {
+                    stack.push(key);
+                    return new Node(key.isFinalState());
+                  });
+          if (num == 0) {
+            node.addEpsilonEdge(successorNode);
+          } else {
+            node.addEdge(table.getCharRangeOfNum(num), successorNode);
           }
-          CharacterRange charRange = getCharRange(charTable, classNum);
-          fromNode.addEdge(charRange, toNode);
         }
       }
     }
 
-    return new Digraph(nodes.get(start), "NFA");
+    return new Digraph(nodeMap.get(startState), "NFA");
   }
 }

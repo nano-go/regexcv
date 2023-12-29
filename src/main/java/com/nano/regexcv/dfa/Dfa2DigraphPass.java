@@ -16,8 +16,8 @@
 package com.nano.regexcv.dfa;
 
 import com.nano.regexcv.Pass;
-import com.nano.regexcv.table.ICharsNumTable;
 import com.nano.regexcv.util.Digraph;
+import com.nano.regexcv.util.Digraph.Node;
 import java.util.HashMap;
 import java.util.LinkedList;
 
@@ -26,32 +26,33 @@ public class Dfa2DigraphPass implements Pass<Dfa, Digraph> {
 
   @Override
   public Digraph accept(Dfa dfa) {
-    ICharsNumTable charClass = dfa.getCharsNumTable();
-    LinkedList<DfaState> stack = new LinkedList<>();
+    var table = dfa.getCharsNumTable();
+    var nodeMap = new HashMap<DfaState, Node>();
+    var stack = new LinkedList<DfaState>();
 
-    HashMap<DfaState, Digraph.Node> nodes = new HashMap<>();
-
-    DfaState start = dfa.getStart();
-    stack.push(start);
-    nodes.put(start, new Digraph.Node(start.isFinalState()));
+    var startState = dfa.getStart();
+    stack.push(startState);
+    nodeMap.put(startState, new Node(startState.isFinalState()));
 
     while (!stack.isEmpty()) {
-      DfaState dstate = stack.pop();
-      Digraph.Node node = nodes.get(dstate);
-      DfaState[] transitions = dstate.getAllTransitions();
-      for (int i = 0; i < transitions.length; i++) {
-        DfaState toDstate = transitions[i];
-        if (transitions[i] == null) continue;
-        Digraph.Node toNode = nodes.get(toDstate);
-        if (toNode == null) {
-          toNode = new Digraph.Node(toDstate.isFinalState());
-          nodes.put(toDstate, toNode);
-          stack.push(toDstate);
-        }
-        node.addEdge(charClass.getCharRangeOfNum(i + 1), toNode);
+      var state = stack.pop();
+      var node = nodeMap.get(state);
+      var transitions = state.getAllTransitions();
+      for (int num = 0; num < transitions.length; num++) {
+        var successorState = transitions[num];
+        if (successorState == null) continue;
+        var successorNode =
+            nodeMap.computeIfAbsent(
+                successorState,
+                key -> {
+                  stack.push(key);
+                  return new Node(key.isFinalState());
+                });
+        // Dfa has not epsilon edge numbered 0.
+        node.addEdge(table.getCharRangeOfNum(num + 1), successorNode);
       }
     }
 
-    return new Digraph(nodes.get(start), "DFA");
+    return new Digraph(nodeMap.get(startState), "DFA");
   }
 }
