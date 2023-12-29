@@ -17,7 +17,6 @@ package com.nano.regexcv.table;
 
 import com.nano.regexcv.Pass;
 import com.nano.regexcv.syntax.tree.RAlternation;
-import com.nano.regexcv.syntax.tree.RCharList;
 import com.nano.regexcv.syntax.tree.RCharRange;
 import com.nano.regexcv.syntax.tree.RCharRangeList;
 import com.nano.regexcv.syntax.tree.RContatenation;
@@ -46,14 +45,6 @@ public class CharacterSetCollector
   @Override
   public Void visit(RSingleCharacter node) {
     builder.addChar(node.getChar());
-    return null;
-  }
-
-  @Override
-  public Void visit(RCharList node) {
-    for (char ch : node.getChars()) {
-      builder.addChar(ch);
-    }
     return null;
   }
 

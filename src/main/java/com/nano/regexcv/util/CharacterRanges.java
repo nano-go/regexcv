@@ -296,4 +296,12 @@ public class CharacterRanges {
     result.add(new CharacterRange(left, Character.MAX_VALUE));
     return result;
   }
+
+  public static CharacterRange[] asCharacterRanges(char[] charList) {
+    var arr = new CharacterRange[charList.length];
+    for (int i = 0; i < charList.length; i++) {
+      arr[i] = CharacterRange.of(charList[i]);
+    }
+    return arr;
+  }
 }

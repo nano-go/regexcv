@@ -17,7 +17,6 @@ package com.nano.regexcv.nfa;
 
 import com.nano.regexcv.Pass;
 import com.nano.regexcv.syntax.tree.RAlternation;
-import com.nano.regexcv.syntax.tree.RCharList;
 import com.nano.regexcv.syntax.tree.RCharRange;
 import com.nano.regexcv.syntax.tree.RCharRangeList;
 import com.nano.regexcv.syntax.tree.RContatenation;
@@ -49,23 +48,6 @@ public class RExpTree2NfaPass implements RTreeVisitor<Nfa>, Pass<RTreeWithTable,
     var start = nfa.getStart();
     var end = nfa.getEnd();
     start.addTransition(table.getNumOfChar(node.getChar()), end);
-    return nfa;
-  }
-
-  @Override
-  public Nfa visit(RCharList node) {
-    var nfa = new Nfa(table);
-    var start = nfa.getStart();
-    var end = nfa.getEnd();
-
-    var chs = node.getChars();
-    for (char ch : chs) {
-      start.addTransition(table.getNumOfChar(ch), end);
-    }
-    if (chs.length == 0) {
-      start.addEmptyTransition(end);
-    }
-
     return nfa;
   }
 

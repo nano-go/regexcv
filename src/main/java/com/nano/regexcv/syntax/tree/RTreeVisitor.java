@@ -19,8 +19,6 @@ public interface RTreeVisitor<Out> {
 
   public Out visit(RSingleCharacter node);
 
-  public Out visit(RCharList node);
-
   public Out visit(RCharRange node);
 
   public Out visit(RCharRangeList node);

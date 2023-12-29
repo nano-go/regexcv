@@ -16,7 +16,6 @@
 package com.nano.regexcv.syntax;
 
 import com.nano.regexcv.syntax.tree.RAlternation;
-import com.nano.regexcv.syntax.tree.RCharList;
 import com.nano.regexcv.syntax.tree.RCharRange;
 import com.nano.regexcv.syntax.tree.RCharRangeList;
 import com.nano.regexcv.syntax.tree.RContatenation;
@@ -90,10 +89,6 @@ public class InnerRegexParser {
 
   private RCharRangeList newCharRangeList(CharacterRange... ranges) {
     return new RCharRangeList(false, ranges);
-  }
-
-  private RCharList newCharList(char... chs) {
-    return new RCharList(chs);
   }
 
   private RCharRange newCharRange(char from, char to) {
@@ -254,7 +249,7 @@ public class InnerRegexParser {
     char start = ((RSingleCharacter) left).getChar();
     // Support syntax '[a-]'
     if (this.ch == ']') {
-      return newCharList(start, '-');
+      return new RCharRangeList(false, start, '-');
     }
     var right = parseChar();
     // Support syntax '[a-\w]'

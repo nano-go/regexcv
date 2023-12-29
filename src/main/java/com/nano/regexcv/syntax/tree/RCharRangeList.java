@@ -33,6 +33,10 @@ public class RCharRangeList extends RegularExpression.TermExpr {
             .toArray(CharacterRange[]::new));
   }
 
+  public RCharRangeList(boolean isNegated, char... charList) {
+    this(isNegated, CharacterRanges.asCharacterRanges(charList));
+  }
+
   public RCharRangeList(boolean isNegated, List<CharacterRange> list) {
     this(isNegated, list.toArray(CharacterRange[]::new));
   }
