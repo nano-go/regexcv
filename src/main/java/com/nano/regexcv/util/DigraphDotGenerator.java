@@ -19,9 +19,7 @@ import static com.nano.regexcv.util.Digraph.*;
 
 import com.nano.regexcv.Pass;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Map;
 
 public class DigraphDotGenerator implements Pass<Digraph, String> {
 
@@ -29,37 +27,33 @@ public class DigraphDotGenerator implements Pass<Digraph, String> {
     return String.format("s%d", serialNumber);
   }
 
-  private GraphvizDotBuilder code;
-
   @Override
   public String accept(Digraph digraph) {
-    code = new GraphvizDotBuilder("digraph", Display.escapingString(digraph.getName()));
-    generateCode(digraph.getStart());
-    return code.build();
-  }
+    var codeBuilder = new GraphvizDotBuilder("digraph", Display.escapingString(digraph.getName()));
 
-  private void generateCode(Node node) {
-    LinkedList<Node> queue = new LinkedList<>();
-    HashMap<Node, String> marker = new HashMap<>();
+    var queue = new LinkedList<Node>();
+    var names = new HashMap<Node, String>();
     int serialNumber = 1;
-    marker.put(node, generateName(0));
-    queue.push(node);
+    names.put(digraph.getStart(), generateName(0));
+    queue.offer(digraph.getStart());
     while (!queue.isEmpty()) {
-      Node fromNode = queue.poll();
-      String name = marker.get(fromNode);
-      code.addNodeDeclr(name, fromNode.isFinalState());
-      for (Map.Entry<Label, HashSet<Node>> edges : fromNode.getAllEdges()) {
-        String label = edges.getKey().toString();
-        for (Node n : edges.getValue()) {
-          String toName = marker.get(n);
-          if (toName == null) {
-            toName = generateName(serialNumber++);
-            marker.put(n, toName);
-            queue.offer(n);
+      var node = queue.poll();
+      var name = names.get(node);
+      codeBuilder.addNodeDeclr(name, node.isFinalState());
+      for (var edges : node.getAllEdges()) {
+        var label = edges.getKey().toString();
+        for (var successor : edges.getValue()) {
+          var succName = names.get(successor);
+          if (succName == null) {
+            succName = generateName(serialNumber++);
+            names.put(successor, succName);
+            queue.offer(successor);
           }
-          code.addEdge(name, toName, label);
+          codeBuilder.addEdge(name, succName, label);
         }
       }
     }
+
+    return codeBuilder.build();
   }
 }

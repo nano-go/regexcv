@@ -164,9 +164,9 @@ public class InnerRegexParser {
    * <pre>{@code
    * Syntax:
    *  (  '(' Regex ')'              # Parenthesis expression
-   *   | Character class            # Like [abc-f]
+   *   | Character Class            # Like [abc-f]
    *   | '.'                        # Any character
-   *   | Character or escape mate   # \w \n... or single character like 'a'
+   *   | Character                  # Escape char or literal char.
    *  ) Quantifier
    * }</pre>
    */
@@ -246,39 +246,39 @@ public class InnerRegexParser {
     if (!checkIsChar(left) || !got('-')) {
       return left;
     }
-    char start = ((RSingleCharacter) left).getChar();
+    char startCh = ((RSingleCharacter) left).getChar();
     // Support syntax '[a-]'
     if (this.ch == ']') {
-      return new RCharRangeList(false, start, '-');
+      return new RCharRangeList(false, startCh, '-');
     }
     var right = parseChar();
     // Support syntax '[a-\w]'
     if (!checkIsChar(right)) {
       return new RCharRangeList(false, left, newCharExpr('-'), right);
     }
-    char end = ((RSingleCharacter) right).getChar();
-    if (end < start) {
+    char endCh = ((RSingleCharacter) right).getChar();
+    if (endCh < startCh) {
       error("Range out of order in character class.");
     }
-    return newCharRange(start, end);
+    return newCharRange(startCh, endCh);
   }
 
   private boolean checkIsChar(RegularExpression expr) {
     return expr instanceof RSingleCharacter;
   }
 
-  /** Parse a escape char or a normal char. */
+  /** Parse a escape char or a literal char. */
   private RegularExpression.TermExpr parseChar() {
     if (got('\\')) {
-      return parseMetaCharacter();
+      return parseEscapeCharacter();
     }
     char ch = this.ch;
     advance();
     return newCharExpr(ch);
   }
 
-  /** Parse meta character. */
-  private RegularExpression.TermExpr parseMetaCharacter() {
+  /** Parse escape character. */
+  private RegularExpression.TermExpr parseEscapeCharacter() {
     var regex =
         switch (this.ch) {
           case 'w' -> newCharRangeList(WORD_RANGES);
@@ -302,7 +302,7 @@ public class InnerRegexParser {
     return regex;
   }
 
-  /** Parse Quantifier. */
+  /** Attempt to parse a quantifier. */
   private RegularExpression parseQuantifier(RegularExpression regex) {
     switch (this.ch) {
       case '*':
