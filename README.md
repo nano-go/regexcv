@@ -15,19 +15,19 @@ Regexcv is wrote in Java. If you want to run this tool on your computer, the JRE
 Download jar:
 
 ```shell
-wget https://github.com/nano-go/regexcv/releases/download/1.0.0/Regexcv-1.0.0.jar
+wget https://github.com/nano-go/regexcv/releases/download/v1.0.2/Regexcv-v1.0.2.jar
 ```
 
 Run:
 
 ```shell
-java -jar Regexcv-1.0.0.jar -v
+java -jar path_to_regexcv_jar -v
 ```
 
 Or use alias to run:
 
 ```shell
-alias regexcv='java -jar regexcv_jar_path'
+alias regexcv='java -jar path_to_regexcv_jar'
 
 regexcv --help
 ```
@@ -152,4 +152,3 @@ regexcv -D -m -r '((\s)|[abc])+(\w|(\Sabc))*' > dfa1.dot && dot -Tpng -o dfa1.pn
 The output image:
 
 ![DFA1](https://raw.githubusercontent.com/nano-go/regexcv/main/resources/dfa1.png)
-
