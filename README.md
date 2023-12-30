@@ -1,137 +1,155 @@
 # Regexcv
+
 Regexcv is a command line tool that is used to generate a DFA/NFA digraph denoted by the [Graphviz Dot Language](http://graphviz.org/) from a regular expression.
 
-# Feature
+# Features
 
-1. Generate NFA/DFA digraph.
-2. Minimize generated DFA.
-3. Remove `ε-closure` of NFA.
+- Simple regex syntax.
+- Generating NFA, NFA with epsilon closure, DFA, minimized DFA.
+- Merging edges of digraph into a label like '\w'.
 
 # Getting Started
-Regexcv is wrote in Java. If you want to run this tool on your computer, the JRE(1.8 or more) is required.
+
+Regexcv is wrote in Java. If you want to run this tool on your computer, the JRE is required.
 
 Download jar:
-``` shell
+
+```shell
 wget https://github.com/nano-go/regexcv/releases/download/1.0.0/Regexcv-1.0.0.jar
 ```
 
 Run:
-``` shell
+
+```shell
 java -jar Regexcv-1.0.0.jar -v
 ```
 
 Or use alias to run:
-``` shell
+
+```shell
 alias regexcv='java -jar regexcv_jar_path'
 
 regexcv --help
 ```
 
-# Regular Expression
-Regexcv supports only the simple regular expression syntax.
+# Supported Regular Expression Syntax
 
-## 1. Char Classes
+## 1. Character Class
 
-The regex `[A-Za-z0-9_$]` can match the following strings:
-```
-'a', 'b', 'C', '_', '$'...
-```
+A character class matches a single char that is contained within '[]'. For example, the regex `[abc]` matches `a`, `b` or `c`.
 
-But the nagated character class syntax is not supported:  
+In character class, You can specify a range using `-`, but if the '-' is the first or the last within '[]' like '[-a], [a-]', or the both sides of '-' are a special escape character like '\w' or '\d', the '-' will be treated as a literal character.
 
-The regex `[^abc]` only match the following strings:
-```
-'a', 'b', 'c', '^'
-```
+Escape characters can exist in the character class. For example, the regex `[\w\s]` matches any word character and space chatacter.
 
-The nagate character `^` will be recognized as a normal single character.
+If the `^` is the first within `[]`, this matches a single character that is not contained the character set.
 
-## 2. Choices
+Examples:
 
-Uses `|` to choice multiple regular expressions.
+- The regex `[a0-9]` matches: `"a", "0", "1", "2"..."9"`
+- The regex `[-]` matches: `"-"`
+- The regex `[a-] or [-a]` matches: `"a", "-"`
+- The regex `[\w-7]` matches: `"a", "A", "9", "-", "7"`
+- The regex `[\n-a]` matches any character in the range `\n-a`
+- The regex `[^a-z8]` matches: `"0", "7", "A"`
+- The regex `[^]` matches any character.
+- The regex `[]` matches empty.
 
+## 2. Alternation
 
-The regex `a|b|c` only matches the following strings:
-```
-'a', 'b', 'c'
-```
+Alternation matches any one subexpression seperated by the '|'.
 
-## 3. Special Characters
+Examples:
 
-In regexcv, uses the `.`, `\w`, `\d`, `\s` special characters to represent `any char`, `[a-zA-Z0-9]`, `[0-9]`, `spacewhite`.
+- The regex `a|b` matches: `"a", "b"`
+- The regex `a|` matches: `"a", ""`
+- The regex `|` matches: `""`
 
+## 3. Escape character and special character.
 
-The regex `.\w\d\s` can match the following strings:
-```
-'%a0 ', '_A9 ', '$A8\t'...
-```
+You can use `\` to indicate that a character is special, or should be treated as a literal character.
+
+| Escape Char |                       Description                       |
+| :---------: | :-----------------------------------------------------: |
+|     \w      |  Matches any word character. Equals to `[a-zA-Z0-9_]`   |
+|     \W      | Matches a non-word character. Equals to `[^a-zA-Z0-9_]` |
+|     \d      |      Matches a digit character. Equals to `[0-9]`       |
+|     \D      |    Matches a non-digit character. Equals to `[^0-9]`    |
+|     \s      |   Matches a space character. Equals to `[ \n\r\t\f]`    |
+|     \S      | Matches a non-space character. Equals to `[^ \n\r\t\f]` |
+|     \n      |          Matches a linefeed(char code \u000A)           |
+|     \r      |       Matches a carriage return(char code \u000D)       |
+|     \f      |       Matches a horizontal tab(char code \u0009)        |
+|     \t      |          Matches a form feed(char code \u000C)          |
+|     \b      |         Matches a back space(char code \u0008)          |
+
+You can use `\` to escape a meta character as a literal character like `\(\)\[\]\*\+\?\.\|`
+
+`.` is a special character that can matches any character.
+
+Examples:
+
+- The regex `\d` matches: `"1", "3", "9"`
+- The regex `\w` matches: `"a", "Z", "9", "_"`
+- The regex `\*` matches: `"*"`
+- The regex `\n` matches new line `\u000A`
+- The regex `.` matches: `"a", "*", "&"...`
 
 ## 4. Quantifiers
 
-1. Zero or more: `*`
-2. One or more: `+`
-3. Optional: `?`
+A quantifier character specifies how many instances of the previous expression:
 
-## 5. Parentheses
-You can use parenthese to denote priority in the order of regular expressions.
+- `*`: zero or more
+- `+`: one or more
+- `?`: zero or one (optional)
 
-The regex `(abc)*` can match the following strings:
-```
-'', 'abc', 'abcabc'...
-```
+Examples:
 
-## 6. Unicode
-Regexcv supports unicode characters.
+- The regex `(foo)*` matches: `"", "foo", "foofoo"`
+- The regex `(foo)+` matches: `"foo", "foofoo"`
+- The regex `(foo)?` matches: `"", "foo"`
 
-The regex `(你好)|(Hello)` matches the following strings:
-```
-'你好', 'Hello'
-```
+## 5. Unicode
 
-## 7. Escape Characters
-You can use `\` to escape meta-characters in the regular expression.
+You can use unicode characters in regular expression.
 
-For example: The regex `\(\)\[\]` matches the string `()[]`.
+Examples
+
+- The regex `(你好)|(Hello)` matches: `"你好", "Hello"`
 
 # Examples
 
-##  NFA
+## NFA
 
-Regex `(abc)*`:
-``` shell
-regexcv -N '(abc)*'
+The input regex `(abc)*`:
+
+```shell
+regexcv -N -e -r '(abc)*' > nfa1.dot && dot -Tpng -o nfa1.png nfa1.dot
 ```
 
-Ues Graphviz Dot to generate the following image:
+The output image:
 
-!['(abc)*' NFA](https://raw.githubusercontent.com/nano-go/regexcv/main/resources/nfa1.png)
+![NFA1](https://raw.githubusercontent.com/nano-go/regexcv/main/resources/nfa1.png)
 
-Regex `<\w+>.*<\w+>`:
-``` shell
-regexcv -N -e -r '<\w+>.*<\w+>'
+The input regex `<\w+>[^<]*<\\\w+>`:
+
+```shell
+regexcv -N -e -r '<\w+>[^<]*<\\\w+>' > nfa2.dot && dot -Tpng -o nfa2.png nfa2.dot
 ```
 
-The generated image:
+The output image:
 
-!['<\w+>.*<\w+>' NFA](https://raw.githubusercontent.com/nano-go/regexcv/main/resources/nfa2.png)
+![NFA2](https://raw.githubusercontent.com/nano-go/regexcv/main/resources/nfa2.png)
 
 ## DFA
 
-Regex `(a|b)*abb`:
-``` shell
-regexcv -D '(a|b)*abb'
+The input regex `((\s)|[abc])+(\w|(\Sabc))*`:
+
+```shell
+regexcv -D -m -r '((\s)|[abc])+(\w|(\Sabc))*' > dfa1.dot && dot -Tpng -o dfa1.png dfa1.dot
 ```
 
-The generated image:
+The output image:
 
-!['(a|b)*abb' DFA](https://raw.githubusercontent.com/nano-go/regexcv/main/resources/dfa1.png)
+![DFA1](https://raw.githubusercontent.com/nano-go/regexcv/main/resources/dfa1.png)
 
-
-Regex `(from)|(frog)`:
-``` shell
-regexcv -D -m '(from)|(frog)'
-```
-
-The generated image:
-
-!['(from)|(frog)' DFA](https://raw.githubusercontent.com/nano-go/regexcv/main/resources/dfa2.png)
