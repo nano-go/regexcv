@@ -1,22 +1,13 @@
 digraph NFA{
 	rankdir=LR
 
-	s0 [shape=circle]
+	s0 [shape=doublecircle]
 	s1 [shape=circle]
 	s2 [shape=circle]
-	s3 [shape=circle]
-	s4 [shape=circle]
-	s5 [shape=circle]
-	s6 [shape=circle]
-	s7 [shape=circle]
+	s3 [shape=doublecircle]
 
-	s0 -> s1 [label="ε"]
-	s0 -> s2 [label="ε"]
-	s1 -> s3 [label="a"]
-	s2 -> s0 [label="ε"]
-	s3 -> s4 [label="ε"]
-	s4 -> s5 [label="b"]
-	s5 -> s6 [label="ε"]
-	s6 -> s7 [label="c"]
-	s7 -> s2 [label="ε"]
+	s0 -> s1 [label="a"]
+	s1 -> s2 [label="b"]
+	s2 -> s3 [label="c"]
+	s3 -> s1 [label="a"]
 }
