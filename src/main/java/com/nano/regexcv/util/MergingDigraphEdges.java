@@ -35,8 +35,11 @@ public class MergingDigraphEdges implements Pass<Digraph, Digraph> {
       new Tag[] {
         new Tag("any char", CharacterRange.RANGE_ANY),
         new Tag("\\w", CharacterRanges.parse("a-zA-Z0-9_")),
+        new Tag("\\W", CharacterRanges.parse("^a-zA-Z0-9_")),
         new Tag("\\d", CharacterRanges.parse("0-9")),
+        new Tag("\\D", CharacterRanges.parse("^0-9")),
         new Tag("\\s", CharacterRanges.parse(" \t-\n\f-\r")),
+        new Tag("\\S", CharacterRanges.parse("^ \t-\n\f-\r")),
       };
 
   /**
