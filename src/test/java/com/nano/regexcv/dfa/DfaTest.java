@@ -15,8 +15,8 @@
  */
 package com.nano.regexcv.dfa;
 
+import com.nano.regexcv.RegexTestCase;
 import java.io.IOException;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class DfaTest {
@@ -31,28 +31,13 @@ public class DfaTest {
 
   private void runTestCase(RegexTestCase tc) {
     for (var pattern : tc.patterns) {
-      testPattern(pattern, true, tc.strsShouldBeMatched);
-      testPattern(pattern, false, tc.strsShouldNotBeMatched);
+      var dfaPattern = new DfaPattern(pattern);
+      dfaPattern.test(true, tc.strsShouldBeMatched);
+      dfaPattern.test(false, tc.strsShouldNotBeMatched);
       // Minimized DFA should be ok.
-      pattern.minimizeDFA();
-      testPattern(pattern, true, tc.strsShouldBeMatched);
-      testPattern(pattern, false, tc.strsShouldNotBeMatched);
-    }
-  }
-
-  private void testPattern(DfaPattern pattern, boolean matched, String[] input) {
-
-    for (String text : input) {
-      var actual = pattern.match(text);
-      if (actual != matched) {
-        var tag = matched ? "SHOULD MATCH" : "SHOULD NOT MATCH";
-        var table = pattern.table.getTable();
-        var msg =
-            String.format(
-                "%s; pattern: \"%s\"; text: \"%s\"; minimized: %s; table: %s",
-                tag, pattern.pattern, text, pattern.isMinimized, table);
-        Assert.fail(msg);
-      }
+      dfaPattern.minimizeDFA();
+      dfaPattern.test(true, tc.strsShouldBeMatched);
+      dfaPattern.test(false, tc.strsShouldNotBeMatched);
     }
   }
 }

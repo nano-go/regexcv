@@ -15,12 +15,13 @@
  */
 package com.nano.regexcv.dfa;
 
+import com.nano.regexcv.IPattern;
 import com.nano.regexcv.nfa.RExpTree2NfaPass;
 import com.nano.regexcv.syntax.RegexParser;
 import com.nano.regexcv.table.CharacterSetCollector;
 import com.nano.regexcv.table.ICharsNumTable;
 
-public class DfaPattern {
+public class DfaPattern implements IPattern {
   protected Dfa dfa;
   protected ICharsNumTable table;
   protected String pattern;
@@ -42,7 +43,8 @@ public class DfaPattern {
     this.isMinimized = true;
   }
 
-  public boolean match(String text) {
+  @Override
+  public boolean matches(String text) {
     DfaState state = dfa.getStart();
     for (var ch : text.toCharArray()) {
       int classNumber = table.queryNumOfInputChar(ch);
@@ -55,5 +57,20 @@ public class DfaPattern {
       }
     }
     return state.isFinalState();
+  }
+
+  @Override
+  public String getPattern() {
+    return pattern;
+  }
+
+  @Override
+  public ICharsNumTable getTable() {
+    return table;
+  }
+
+  @Override
+  public String getInformation() {
+    return String.format("(DFA, /%s/, minimized: %s)", this.pattern, this.isMinimized);
   }
 }

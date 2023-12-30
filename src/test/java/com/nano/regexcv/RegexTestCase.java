@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.nano.regexcv.dfa;
+package com.nano.regexcv;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,14 +28,14 @@ public class RegexTestCase {
   static final Pattern REGEX_PARSING_DATALINE = Pattern.compile("\\s*\"([^\"]*)\"[\\s,]*");
 
   // Read resouece file and parse it.
-  protected static RegexTestCase[] parseFile(String filename) throws IOException {
+  public static RegexTestCase[] parseFile(String filename) throws IOException {
     var path = RegexTestCase.class.getClassLoader().getResource(filename).getFile();
     try (var fis = new FileInputStream(new File(path))) {
       return parseContent(new String(fis.readAllBytes()));
     }
   }
 
-  protected static RegexTestCase[] parseContent(String content) {
+  public static RegexTestCase[] parseContent(String content) {
     // Ignore empty lines and comments.
     var lines =
         Arrays.stream(content.split("\n+"))
@@ -100,12 +100,12 @@ public class RegexTestCase {
     return buf.toString();
   }
 
-  protected DfaPattern[] patterns;
-  protected String[] strsShouldBeMatched;
-  protected String[] strsShouldNotBeMatched;
+  public String[] patterns;
+  public String[] strsShouldBeMatched;
+  public String[] strsShouldNotBeMatched;
 
   public RegexTestCase(String[] patterns, String[] matchedStrs, String[] unmacthedStrs) {
-    this.patterns = Arrays.stream(patterns).map(DfaPattern::new).toArray(DfaPattern[]::new);
+    this.patterns = patterns;
     this.strsShouldBeMatched = matchedStrs;
     this.strsShouldNotBeMatched = unmacthedStrs;
   }
