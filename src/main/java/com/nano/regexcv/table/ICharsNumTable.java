@@ -17,6 +17,7 @@ package com.nano.regexcv.table;
 
 import com.nano.regexcv.util.CharacterRange;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -92,6 +93,16 @@ public interface ICharsNumTable {
         return this.start == interval.start && this.end == interval.end;
       }
       return super.equals(obj);
+    }
+
+    @Override
+    public String toString() {
+      return String.format("%s-%s", start, end);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(start, end);
     }
   }
 
