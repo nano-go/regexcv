@@ -53,7 +53,7 @@ Examples:
 - The regex `[\n-a]` matches any character in the range `\n-a`
 - The regex `[^a-z8]` matches: `"0", "7", "A"`
 - The regex `[^]` matches any character.
-- The regex `[]` matches the empty string.
+- The regex `[]` is an empty character class and therefore matches nothing.
 
 ## 2. Alternation
 
