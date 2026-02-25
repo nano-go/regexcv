@@ -29,7 +29,7 @@ public abstract class RegularExpression {
   public abstract static class TermExpr extends RegularExpression {
 
     /**
-     * A term expr can be treated as one or more chatacter ranges.
+     * A term expr can be treated as one or more character ranges.
      *
      * <p>For Example:
      *
@@ -38,7 +38,7 @@ public abstract class RegularExpression {
      *   <li>A character list 'a,h,d' will be treated as a range list {@code [a-a, h-h, d-d]}.
      * </ul>
      *
-     * <p>This method is useful for parsing chatacter classes like '[\w\da-z]'.
+     * <p>This method is useful for parsing character classes like '[\w\da-z]'.
      */
     public abstract List<CharacterRange> toCharRangeList();
   }

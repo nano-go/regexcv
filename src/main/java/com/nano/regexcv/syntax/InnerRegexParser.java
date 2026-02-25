@@ -115,9 +115,20 @@ public class InnerRegexParser {
    * <p>A regular expression is represented as the concatenation of multiple subexpressions.
    */
   protected RegularExpression parseRegex() {
+    return parseAlternation();
+  }
+
+  /** Parses one or more concatenation expressions. */
+  private RegularExpression parseConcatenation() {
     LinkedList<RegularExpression> concatenation = new LinkedList<>();
     while (!isEnd() && ch != ')') {
-      concatenation.add(parseAlternation());
+      if (ch == '|') {
+        break;
+      }
+      concatenation.add(parseTerm());
+    }
+    if (concatenation.isEmpty()) {
+      return new REmpty();
     }
     if (concatenation.size() == 1) {
       return concatenation.get(0);
@@ -134,28 +145,14 @@ public class InnerRegexParser {
    */
   private RegularExpression parseAlternation() {
     var list = new ArrayList<RegularExpression>();
-    list.add(parseLeftOfAlternation());
+    list.add(parseConcatenation());
     while (got('|')) {
-      list.add(parseRightOfAlternation());
+      list.add(parseConcatenation());
     }
     if (list.size() == 1) {
       return list.get(0);
     }
     return new RAlternation(list);
-  }
-
-  private RegularExpression parseLeftOfAlternation() {
-    if (this.ch == '|') {
-      return new REmpty();
-    }
-    return parseTerm();
-  }
-
-  private RegularExpression parseRightOfAlternation() {
-    if (isEnd() || this.ch == ')' || this.ch == '|') {
-      return new REmpty();
-    }
-    return parseTerm();
   }
 
   /**
@@ -197,7 +194,7 @@ public class InnerRegexParser {
 
       case ')':
         {
-          error("Unmacthed parenthesis.");
+          error("Unmatched parenthesis.");
           break;
         }
 

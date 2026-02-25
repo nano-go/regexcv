@@ -17,6 +17,9 @@ package com.nano.regexcv.syntax;
 
 import static org.junit.Assert.*;
 
+import com.nano.regexcv.syntax.tree.RAlternation;
+import com.nano.regexcv.syntax.tree.RContatenation;
+import com.nano.regexcv.syntax.tree.RegularExpression;
 import org.junit.Test;
 
 public class ParserTest {
@@ -38,5 +41,23 @@ public class ParserTest {
       }
       fail("Expected syntax error: " + pattern);
     }
+  }
+
+  @Test(timeout = 2000)
+  public void parseAlternationContainingConcatenations() {
+    RegexParser parser = new RegexParser();
+
+    RegularExpression regex = parser.accept("ab|cd");
+    assertTrue(regex instanceof RAlternation);
+
+    RAlternation alternation = (RAlternation) regex;
+    assertEquals(2, alternation.getRegexList().size());
+    assertTrue(alternation.getRegexList().get(0) instanceof RContatenation);
+    assertTrue(alternation.getRegexList().get(1) instanceof RContatenation);
+
+    RContatenation left = (RContatenation) alternation.getRegexList().get(0);
+    RContatenation right = (RContatenation) alternation.getRegexList().get(1);
+    assertEquals(2, left.getRegexList().size());
+    assertEquals(2, right.getRegexList().size());
   }
 }
