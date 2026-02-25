@@ -57,13 +57,17 @@ Examples:
 
 ## 2. Alternation
 
-Alternation matches any one subexpression separated by `|`.
+In regexcv, `|` applies to a **single term**, and then concatenation joins the surrounding terms.
+
+That means `ab|cd` is parsed as `a(b|c)d`, so it matches `abd` or `acd`.
+
+If you want classic whole-branch alternation, use parentheses explicitly, for example `(ab)|(cd)`.
 
 Examples:
 
 - The regex `a|b` matches: `"a", "b"`
-- The regex `a|` matches: `"a", ""`
-- The regex `|` matches: `""`
+- The regex `ab|cd` matches: `"abd", "acd"`
+- The regex `(ab)|(cd)` matches: `"ab", "cd"`
 
 ## 3. Escape and Special Characters
 

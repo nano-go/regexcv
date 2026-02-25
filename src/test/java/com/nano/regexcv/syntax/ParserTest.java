@@ -48,16 +48,13 @@ public class ParserTest {
     RegexParser parser = new RegexParser();
 
     RegularExpression regex = parser.accept("ab|cd");
-    assertTrue(regex instanceof RAlternation);
+    assertTrue(regex instanceof RContatenation);
 
-    RAlternation alternation = (RAlternation) regex;
+    RContatenation concatenation = (RContatenation) regex;
+    assertEquals(3, concatenation.getRegexList().size());
+    assertTrue(concatenation.getRegexList().get(1) instanceof RAlternation);
+
+    RAlternation alternation = (RAlternation) concatenation.getRegexList().get(1);
     assertEquals(2, alternation.getRegexList().size());
-    assertTrue(alternation.getRegexList().get(0) instanceof RContatenation);
-    assertTrue(alternation.getRegexList().get(1) instanceof RContatenation);
-
-    RContatenation left = (RContatenation) alternation.getRegexList().get(0);
-    RContatenation right = (RContatenation) alternation.getRegexList().get(1);
-    assertEquals(2, left.getRegexList().size());
-    assertEquals(2, right.getRegexList().size());
   }
 }

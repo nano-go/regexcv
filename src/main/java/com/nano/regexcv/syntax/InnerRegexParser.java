@@ -115,17 +115,14 @@ public class InnerRegexParser {
    * <p>A regular expression is represented as the concatenation of multiple subexpressions.
    */
   protected RegularExpression parseRegex() {
-    return parseAlternation();
+    return parseConcatenation();
   }
 
   /** Parses one or more concatenation expressions. */
   private RegularExpression parseConcatenation() {
     LinkedList<RegularExpression> concatenation = new LinkedList<>();
     while (!isEnd() && ch != ')') {
-      if (ch == '|') {
-        break;
-      }
-      concatenation.add(parseTerm());
+      concatenation.add(parseAlternation());
     }
     if (concatenation.isEmpty()) {
       return new REmpty();
@@ -140,19 +137,26 @@ public class InnerRegexParser {
    * Parses one or more alternation expressions.
    *
    * <pre>{@code
-   * Syntax: ( Term ( '|' [ Term ] )* ) | ( '|' [ Term ] )+
+   * Syntax: [ Term ] ( '|' [ Term ] )*
    * }</pre>
    */
   private RegularExpression parseAlternation() {
     var list = new ArrayList<RegularExpression>();
-    list.add(parseConcatenation());
+    list.add(parseOptionalTerm());
     while (got('|')) {
-      list.add(parseConcatenation());
+      list.add(parseOptionalTerm());
     }
     if (list.size() == 1) {
       return list.get(0);
     }
     return new RAlternation(list);
+  }
+
+  private RegularExpression parseOptionalTerm() {
+    if (this.ch == ')' || this.ch == '|' || isEnd()) {
+      return new REmpty();
+    }
+    return parseTerm();
   }
 
   /**
