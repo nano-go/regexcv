@@ -18,8 +18,18 @@ package com.nano.regexcv.syntax;
 import com.nano.regexcv.Pass;
 import com.nano.regexcv.syntax.tree.RegularExpression;
 
+/**
+ * Public parsing pass that converts a regex string into a syntax tree.
+ */
 public class RegexParser implements Pass<String, RegularExpression> {
 
+  /**
+   * Parses the given regex text.
+   *
+   * @param regex regular expression source text
+   * @return parsed syntax tree
+   * @throws RegexSyntaxErrorException if the input is syntactically invalid
+   */
   @Override
   public RegularExpression accept(String regex) {
     return new InnerRegexParser(regex).parse();

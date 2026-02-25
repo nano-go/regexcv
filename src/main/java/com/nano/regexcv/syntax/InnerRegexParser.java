@@ -110,9 +110,9 @@ public class InnerRegexParser {
   }
 
   /**
-   * Parse a regular expression.
+   * Parses a regular expression.
    *
-   * <p>A regular expression is concatenated by multiple sub-expressions.
+   * <p>A regular expression is represented as the concatenation of multiple subexpressions.
    */
   protected RegularExpression parseRegex() {
     LinkedList<RegularExpression> concatenation = new LinkedList<>();
@@ -126,10 +126,10 @@ public class InnerRegexParser {
   }
 
   /**
-   * Attempt to parse multiple alternation-expressions.
+   * Parses one or more alternation expressions.
    *
    * <pre>{@code
-   * Syntax: ( Term ( '|' [ Term ] )* ) | ( '|' [ Term ] )+ )
+   * Syntax: ( Term ( '|' [ Term ] )* ) | ( '|' [ Term ] )+
    * }</pre>
    */
   private RegularExpression parseAlternation() {
@@ -159,7 +159,7 @@ public class InnerRegexParser {
   }
 
   /**
-   * Parse Term.
+   * Parses a term.
    *
    * <pre>{@code
    * Syntax:
@@ -222,7 +222,7 @@ public class InnerRegexParser {
   }
 
   /**
-   * Parse Character Class.
+   * Parses a character class.
    *
    * <pre>{@code
    * Syntax: '[' CharRange* ']'
@@ -239,7 +239,7 @@ public class InnerRegexParser {
     return new RCharRangeList(negated, ranges);
   }
 
-  /** Attempt to parse a charcater range like {@code 'a-z', '0-9'}. */
+  /** Parses a character range expression such as {@code a-z} or {@code 0-9}. */
   private RegularExpression.TermExpr parseCharRange() {
     var left = parseChar();
     // Support syntax '[\w-a]'
@@ -267,7 +267,7 @@ public class InnerRegexParser {
     return expr instanceof RSingleCharacter;
   }
 
-  /** Parse a escape char or a literal char. */
+  /** Parses either an escape sequence or a literal character. */
   private RegularExpression.TermExpr parseChar() {
     if (got('\\')) {
       return parseEscapeCharacter();
@@ -277,7 +277,7 @@ public class InnerRegexParser {
     return newCharExpr(ch);
   }
 
-  /** Parse escape character. */
+  /** Parses a single escape sequence (for example, {@code \w} or {@code \n}). */
   private RegularExpression.TermExpr parseEscapeCharacter() {
     var regex =
         switch (this.ch) {
@@ -302,7 +302,7 @@ public class InnerRegexParser {
     return regex;
   }
 
-  /** Attempt to parse a quantifier. */
+  /** Parses an optional quantifier for the previously parsed term. */
   private RegularExpression parseQuantifier(RegularExpression regex) {
     switch (this.ch) {
       case '*':
