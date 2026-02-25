@@ -1,16 +1,16 @@
 # Regexcv
 
-Regexcv is a command line tool that is used to generate a DFA/NFA digraph denoted by the [Graphviz Dot Language](http://graphviz.org/) from a regular expression.
+Regexcv is a command-line tool that generates NFA and DFA directed graphs in the [Graphviz DOT language](http://graphviz.org/) from a regular expression.
 
 # Features
 
-- Simple regex syntax.
-- Generating NFA, NFA with epsilon closure, DFA, minimized DFA.
-- Merging edges of digraph into a label like '\w'.
+- Lightweight regex syntax.
+- Generates NFA, ε-closure-free NFA, DFA, and minimized DFA graphs.
+- Merges parallel graph edges into compact labels such as `\w`.
 
 # Getting Started
 
-Regexcv is wrote in Java. If you want to run this tool on your computer, the JRE is required.
+Regexcv is written in Java. A Java Runtime Environment (JRE) is required to run it.
 
 Download jar:
 
@@ -36,13 +36,13 @@ regexcv --help
 
 ## 1. Character Class
 
-A character class matches a single char that is contained within '[]'. For example, the regex `[abc]` matches `a`, `b` or `c`.
+A character class matches a single character contained within `[]`. For example, the regex `[abc]` matches `a`, `b`, or `c`.
 
-In character class, You can specify a range using `-`, but if the '-' is the first or the last within '[]' like '[-a], [a-]', or the both sides of '-' are a special escape character like '\w' or '\d', the '-' will be treated as a literal character.
+Inside a character class, you can specify a range with `-`. If `-` appears first or last (for example `[-a]`, `[a-]`), or if either side of `-` is a special escape character such as `\w` or `\d`, then `-` is treated as a literal character.
 
-Escape characters can exist in the character class. For example, the regex `[\w\s]` matches any word character and space chatacter.
+Escape characters can appear inside a character class. For example, `[\w\s]` matches any word character or whitespace character.
 
-If the `^` is the first within `[]`, this matches a single character that is not contained the character set.
+If `^` is the first character inside `[]`, the class is negated and matches any character not in the set.
 
 Examples:
 
@@ -53,11 +53,11 @@ Examples:
 - The regex `[\n-a]` matches any character in the range `\n-a`
 - The regex `[^a-z8]` matches: `"0", "7", "A"`
 - The regex `[^]` matches any character.
-- The regex `[]` matches empty.
+- The regex `[]` matches the empty string.
 
 ## 2. Alternation
 
-Alternation matches any one subexpression seperated by the '|'.
+Alternation matches any one subexpression separated by `|`.
 
 Examples:
 
@@ -65,27 +65,27 @@ Examples:
 - The regex `a|` matches: `"a", ""`
 - The regex `|` matches: `""`
 
-## 3. Escape character and special character.
+## 3. Escape and Special Characters
 
-You can use `\` to indicate that a character is special, or should be treated as a literal character.
+Use `\` to introduce a special escape sequence, or to treat a metacharacter as a literal character.
 
-| Escape Char |                       Description                       |
-| :---------: | :-----------------------------------------------------: |
-|     \w      |  Matches any word character. Equals to `[a-zA-Z0-9_]`   |
-|     \W      | Matches a non-word character. Equals to `[^a-zA-Z0-9_]` |
-|     \d      |      Matches a digit character. Equals to `[0-9]`       |
-|     \D      |    Matches a non-digit character. Equals to `[^0-9]`    |
-|     \s      |   Matches a space character. Equals to `[ \n\r\t\f]`    |
-|     \S      | Matches a non-space character. Equals to `[^ \n\r\t\f]` |
-|     \n      |          Matches a linefeed(char code \u000A)           |
-|     \r      |       Matches a carriage return(char code \u000D)       |
-|     \f      |       Matches a horizontal tab(char code \u0009)        |
-|     \t      |          Matches a form feed(char code \u000C)          |
-|     \b      |         Matches a back space(char code \u0008)          |
+| Escape Char | Description |
+| :---------: | :---------- |
+| `\w` | Matches any word character. Equivalent to `[a-zA-Z0-9_]`. |
+| `\W` | Matches a non-word character. Equivalent to `[^a-zA-Z0-9_]`. |
+| `\d` | Matches a digit character. Equivalent to `[0-9]`. |
+| `\D` | Matches a non-digit character. Equivalent to `[^0-9]`. |
+| `\s` | Matches a whitespace character. Equivalent to `[ \n\r\f\t]`. |
+| `\S` | Matches a non-whitespace character. Equivalent to `[^ \n\r\f\t]`. |
+| `\n` | Matches a line feed (char code `\u000A`). |
+| `\r` | Matches a carriage return (char code `\u000D`). |
+| `\f` | Matches a form feed (char code `\u000C`). |
+| `\t` | Matches a horizontal tab (char code `\u0009`). |
+| `\b` | Matches a backspace (char code `\u0008`). |
 
-You can use `\` to escape a meta character as a literal character like `\(\)\[\]\*\+\?\.\|`
+You can use `\` to escape metacharacters as literals, such as `\(\)\[\]\*\+\?\.\|`.
 
-`.` is a special character that can matches any character.
+`.` is a special character that matches any character.
 
 Examples:
 
@@ -97,7 +97,7 @@ Examples:
 
 ## 4. Quantifiers
 
-A quantifier character specifies how many instances of the previous expression:
+A quantifier specifies how many instances of the previous expression are allowed:
 
 - `*`: zero or more
 - `+`: one or more
@@ -111,7 +111,7 @@ Examples:
 
 ## 5. Unicode
 
-You can use unicode characters in regular expression.
+You can use Unicode characters in regular expressions.
 
 Examples
 
