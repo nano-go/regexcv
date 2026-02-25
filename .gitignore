@@ -9,10 +9,16 @@ bin
 
 libs
 
-# Ignore temporary test fies.
-dfa*.png
-dfa*.dot
+/test
 
-*.jar
+# Ignore temporary test fies.
+/*.png
+/*.dot
+
+/.settings
+Session.vim
+
+/*.jar
 *.sh
 *.swp
+
