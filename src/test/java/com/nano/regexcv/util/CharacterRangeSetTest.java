@@ -17,7 +17,9 @@ package com.nano.regexcv.util;
 
 import static org.junit.Assert.*;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import org.junit.Test;
 
 public class CharacterRangeSetTest {
@@ -74,5 +76,37 @@ public class CharacterRangeSetTest {
     }
     assertEquals(10000, set.size());
     assertEquals(expected, toHashSet(set));
+  }
+
+  @Test
+  public void sortedCharRangesShouldReturnOrderedValues() {
+    CharacterRangeSet set = new CharacterRangeSet();
+    set.addRange('f', 'z');
+    set.addChar('a');
+    set.addRange('b', 'd');
+
+    List<CharacterRange> ranges = set.sortedCharRanges();
+    assertEquals(3, ranges.size());
+    assertEquals(new CharacterRange('a', 'a'), ranges.get(0));
+    assertEquals(new CharacterRange('b', 'd'), ranges.get(1));
+    assertEquals(new CharacterRange('f', 'z'), ranges.get(2));
+  }
+
+  @Test
+  public void getCharsShouldIncludeRangeBoundariesOnly() {
+    CharacterRangeSet set = new CharacterRangeSet();
+    set.addRange('a', 'c');
+    set.addRange('f', 'j');
+    set.addChar('x');
+
+    List<Character> chars = set.getChars();
+    assertEquals(6, chars.size());
+    assertTrue(chars.containsAll(Arrays.asList('a', 'c', 'f', 'j', 'x')));
+  }
+
+  @Test
+  public void shouldRejectIllegalInitialCapacity() {
+    assertThrows(IllegalArgumentException.class, () -> new CharacterRangeSet(0));
+    assertThrows(IllegalArgumentException.class, () -> new CharacterRangeSet(-5));
   }
 }
