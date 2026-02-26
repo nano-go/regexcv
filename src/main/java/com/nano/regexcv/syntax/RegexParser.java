@@ -18,9 +18,7 @@ package com.nano.regexcv.syntax;
 import com.nano.regexcv.Pass;
 import com.nano.regexcv.syntax.tree.RegularExpression;
 
-/**
- * Public parsing pass that converts a regex string into a syntax tree.
- */
+/** Public parsing pass that converts a regex string into a syntax tree. */
 public class RegexParser implements Pass<String, RegularExpression> {
 
   /**
